@@ -33,6 +33,13 @@ const zohoService = {
     });
     return response.data;
 },
+    pushPartnerToCRM: async (canteenData) => {
+    const accessToken = await zohoService.getZohoAuthToken();
+    const response = await axios.post(zohoConfig.crmUrl, { data: [canteenData] }, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+},
 };
 
 module.exports = zohoService;
