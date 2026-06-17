@@ -184,11 +184,13 @@ Purpose:
 
 ## Partner Management
 
-Zoho CRM
+Zoho Desk
 
 Purpose:
-
-* Manage Canteen Partners
+- Technical Support Ticket System
+- Customer Complaints
+- Delivery Issues
+- Account Support
 
 Zoho Sign
 
