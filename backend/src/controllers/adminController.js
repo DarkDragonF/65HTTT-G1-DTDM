@@ -17,6 +17,12 @@ const adminController = {
         res.status(200).json({ success: true, data: result });
     } catch (err) { res.status(500).json({ error: err.message }); }
 },
+    syncCanteenPartner: async (req, res) => {
+    try {
+        const syncResult = await zohoService.pushPartnerToCRM(req.body);
+        res.status(200).json({ success: true, message: "Successfully synced with Zoho CRM", data: syncResult });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+},
 };
 
 module.exports = adminController;
