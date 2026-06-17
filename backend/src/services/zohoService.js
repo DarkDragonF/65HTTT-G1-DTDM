@@ -7,6 +7,11 @@ const zohoService = {
     const [rows] = await db.execute('SELECT id, name, email, role, created_at FROM Users LIMIT ? OFFSET ?', [parseInt(limit), parseInt(offset)]);
     return rows;
 },
+
+    toggleUserStatusLocal: async (userId, status) => {
+    await db.execute('UPDATE Users SET is_active = ? WHERE id = ?', [status, userId]);
+    return { userId, status };
+},
 };
 
 module.exports = zohoService;
