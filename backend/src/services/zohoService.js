@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const axios = require('axios');
+const zohoConfig = require('../config/zoho');
 
 const zohoService = {
     // Các logic kết nối DB và Zoho API viết ở đây
@@ -12,6 +13,17 @@ const zohoService = {
     await db.execute('UPDATE Users SET is_active = ? WHERE id = ?', [status, userId]);
     return { userId, status };
 },
+    getZohoAuthToken: async () => {
+        const response = await axios.post(zohoConfig.authUrl, null, {
+            params: {
+                refresh_token: zohoConfig.refreshToken,
+                client_id: zohoConfig.clientId,
+                client_secret: zohoConfig.clientSecret,
+                grant_type: 'refresh_token'
+            }
+        });
+        return response.data.access_token;
+    },
 };
 
 module.exports = zohoService;
