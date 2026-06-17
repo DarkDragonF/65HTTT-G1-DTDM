@@ -10,6 +10,13 @@ const adminController = {
         res.status(200).json({ success: true, data: users });
     } catch (err) { res.status(500).json({ error: err.message }); }
 },
+    changeUserStatus: async (req, res) => {
+    try {
+        const { status } = req.body;
+        const result = await zohoService.toggleUserStatusLocal(req.params.id, status);
+        res.status(200).json({ success: true, data: result });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+},
 };
 
 module.exports = adminController;
