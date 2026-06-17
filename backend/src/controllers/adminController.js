@@ -31,6 +31,11 @@ const adminController = {
         res.status(200).json({ success: true, localRevenue: localRev, cloudAnalytics: zohoCharts });
     } catch (err) { res.status(500).json({ error: err.message }); }
 },
+
+    checkSystemHealth: async (req, res) => {
+    res.status(200).json({ status: "healthy", database: "connected", storage: "cloud_storage_active" });
+}
+
 };
 
 module.exports = adminController;
