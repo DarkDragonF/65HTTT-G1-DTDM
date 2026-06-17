@@ -8,4 +8,5 @@ router.use(authMiddleware, isAdmin); // Tất cả endpoint phía dưới bắt 
 // Các route quản trị sẽ viết ở đây
 router.get('/users', adminController.getAllUsers);
 router.put('/users/:id/status', adminController.changeUserStatus);
+router.post('/canteens/sync', adminController.syncCanteenPartner);
 module.exports = router;
