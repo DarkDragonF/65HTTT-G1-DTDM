@@ -40,6 +40,10 @@ const zohoService = {
     });
     return response.data;
 },
+    getLocalRevenueData: async () => {
+    const [rows] = await db.execute("SELECT SUM(total_amount) as totalRevenue FROM Orders WHERE status = 'Completed'");
+    return rows[0];
+},
 };
 
 module.exports = zohoService;
