@@ -10,4 +10,5 @@ router.get('/users', adminController.getAllUsers);
 router.put('/users/:id/status', adminController.changeUserStatus);
 router.post('/canteens/sync', adminController.syncCanteenPartner);
 router.get('/dashboard/revenue', adminController.getDashboardStats);
+router.get('/monitor', adminController.checkSystemHealth);
 module.exports = router;
