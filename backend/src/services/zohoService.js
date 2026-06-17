@@ -33,6 +33,7 @@ const zohoService = {
     });
     return response.data;
 },
+
     pushPartnerToCRM: async (canteenData) => {
     const accessToken = await zohoService.getZohoAuthToken();
     const response = await axios.post(zohoConfig.crmUrl, { data: [canteenData] }, {
@@ -40,9 +41,18 @@ const zohoService = {
     });
     return response.data;
 },
+
     getLocalRevenueData: async () => {
     const [rows] = await db.execute("SELECT SUM(total_amount) as totalRevenue FROM Orders WHERE status = 'Completed'");
     return rows[0];
+},
+
+    getZohoAnalyticsReport: async () => {
+    const accessToken = await zohoService.getZohoAuthToken();
+    const response = await axios.get(zohoConfig.analyticsUrl, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
 },
 };
 
