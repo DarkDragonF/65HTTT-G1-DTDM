@@ -23,6 +23,14 @@ const adminController = {
         res.status(200).json({ success: true, message: "Successfully synced with Zoho CRM", data: syncResult });
     } catch (err) { res.status(500).json({ error: err.message }); }
 },
+
+    getDashboardStats: async (req, res) => {
+    try {
+        const localRev = await zohoService.getLocalRevenueData();
+        const zohoCharts = await zohoService.getZohoAnalyticsReport();
+        res.status(200).json({ success: true, localRevenue: localRev, cloudAnalytics: zohoCharts });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+},
 };
 
 module.exports = adminController;
