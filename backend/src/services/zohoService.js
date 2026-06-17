@@ -13,6 +13,7 @@ const zohoService = {
     await db.execute('UPDATE Users SET is_active = ? WHERE id = ?', [status, userId]);
     return { userId, status };
 },
+
     getZohoAuthToken: async () => {
         const response = await axios.post(zohoConfig.authUrl, null, {
             params: {
@@ -24,6 +25,14 @@ const zohoService = {
         });
         return response.data.access_token;
     },
+
+    getSecretFromVault: async (secretId) => {
+    const accessToken = await zohoService.getZohoAuthToken();
+    const response = await axios.get(`${zohoConfig.vaultUrl}/${secretId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    return response.data;
+},
 };
 
 module.exports = zohoService;
