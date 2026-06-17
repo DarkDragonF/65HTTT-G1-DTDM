@@ -2,6 +2,14 @@ const zohoService = require('../services/zohoService');
 
 const adminController = {
     // Các hàm xử lý request sẽ viết ở đây
+    getAllUsers: async (req, res) => {
+    try {
+        const limit = req.query.limit || 10;
+        const offset = req.query.offset || 0;
+        const users = await zohoService.getAllUsersLocal(limit, offset);
+        res.status(200).json({ success: true, data: users });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+},
 };
 
 module.exports = adminController;
