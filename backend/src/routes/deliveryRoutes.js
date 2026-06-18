@@ -8,7 +8,7 @@ router.post('/', deliveryController.assignDelivery);
 // Get assigned deliveries for a staff
 router.get('/assigned', deliveryController.getAssigned);
 
-// Update delivery status
-router.put('/:id/status', deliveryController.updateStatus);
+// Update delivery status by order id
+router.put('/:orderId/status', deliveryController.updateStatus);
 
 module.exports = router;

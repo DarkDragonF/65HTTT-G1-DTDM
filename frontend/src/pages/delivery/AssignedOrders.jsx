@@ -16,8 +16,8 @@ export default function AssignedOrders() {
     }).catch(() => setLoading(false));
   }, [user]);
 
-  const update = async (deliveryId, status) => {
-    await deliveryApi.updateDeliveryStatus(deliveryId, status);
+  const update = async (orderId, status) => {
+    await deliveryApi.updateDeliveryStatus(orderId, status);
     const res = await deliveryApi.getAssigned(user.id);
     if (res && res.success) setList(res.data || []);
   };
@@ -30,12 +30,12 @@ export default function AssignedOrders() {
       {list.length === 0 ? <div>No deliveries assigned</div> : (
         <ul>
           {list.map(d => (
-            <li key={d.delivery_id}>
-              Order #{d.order_id} — {d.status} — {d.total_amount}
+            <li key={d.id}>
+              Order #{d.id} — {d.status} — {d.total_amount}
               <div>
-                <button onClick={() => update(d.delivery_id, 'ACCEPTED')}>Accept</button>
-                <button onClick={() => update(d.delivery_id, 'IN_TRANSIT')}>Start</button>
-                <button onClick={() => update(d.delivery_id, 'DELIVERED')}>Delivered</button>
+                <button onClick={() => update(d.id, 'ACCEPTED')}>Accept</button>
+                <button onClick={() => update(d.id, 'IN_TRANSIT')}>Start</button>
+                <button onClick={() => update(d.id, 'DELIVERED')}>Delivered</button>
               </div>
             </li>
           ))}

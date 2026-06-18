@@ -27,7 +27,7 @@ const createHttpError = (message, statusCode = 500) => {
 
 const getOrderById = async (orderId, connection = db) => {
   const [orders] = await connection.query(
-    'SELECT id, user_id, total_amount, status FROM orders WHERE id = ? LIMIT 1',
+    'SELECT id, user_id, delivery_staff_id, total_amount, status FROM orders WHERE id = ? LIMIT 1',
     [orderId],
   );
 

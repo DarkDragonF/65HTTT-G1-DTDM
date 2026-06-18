@@ -6,7 +6,7 @@ export async function assignDelivery({ orderId, deliveryStaffId }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ order_id: orderId, delivery_staff_id: deliveryStaffId }),
+    body: JSON.stringify({ orderId, deliveryStaffId }),
   });
   return res.json();
 }
@@ -17,8 +17,8 @@ export async function getAssigned(staffId) {
   return res.json();
 }
 
-export async function updateDeliveryStatus(deliveryId, status) {
-  const url = `${API_BASE}/api/deliveries/${deliveryId}/status`;
+export async function updateDeliveryStatus(orderId, status) {
+  const url = `${API_BASE}/api/deliveries/${orderId}/status`;
   const res = await fetch(url, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
