@@ -69,7 +69,24 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const getOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isPositiveInteger(id)) {
+      return res.status(400).json({ success: false, message: 'Valid order id is required' });
+    }
+
+    const order = await orderService.getOrder(Number(id));
+
+    return res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
 module.exports = {
   createOrder,
   updateOrderStatus,
+  getOrder,
 };
