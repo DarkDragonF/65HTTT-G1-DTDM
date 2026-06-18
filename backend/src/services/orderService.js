@@ -272,4 +272,6 @@ module.exports = {
   VALID_ORDER_STATUSES,
   createOrder,
   updateOrderStatus,
+  // expose getOrderById as getOrder for controllers
+  getOrder: getOrderById,
 };
