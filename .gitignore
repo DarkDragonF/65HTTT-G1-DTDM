@@ -1,4 +1,8 @@
 # Ignore all sys.md files
+sys.md
+**/sys.md
+
+# Other requirements/system files
 sysReq.md
 task2req.md
 task3req.md
