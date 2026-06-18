@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT } = require('./env');
 
+
 /**
  * MySQL connection pool using promise-based API.
  * Connections are lazily created and reused across requests.
