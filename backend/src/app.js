@@ -1,7 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const authRoutes = require('./routes/authRoutes');
+const canteenRoutes = require('./routes/canteenRoutes');
+const foodRoutes = require('./routes/foodRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 const { errorHandler, AppError } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -32,6 +37,13 @@ app.get('/api/health', (req, res) => {
 
 // ─── API Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/canteens', canteenRoutes);
+app.use('/api/foods', foodRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/categories', categoryRoutes);
+
+// ─── Serve Uploaded Files ───────────────────────────────────────────────────────
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // ─── 404 Handler (unmatched routes) ─────────────────────────────────────────────
 app.use((req, res, next) => {

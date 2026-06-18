@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import './HomePage.css';
 
@@ -33,11 +34,19 @@ const HomePage = () => {
               Welcome back, <span className="welcome-name">{user?.full_name || 'User'}</span>!
             </h2>
             <p className="welcome-subtitle">
-              What would you like to eat today?
+              {user?.role === 'canteen_owner' ? 'Manage your store, menu items, and process orders.' : 'What would you like to eat today?'}
             </p>
             <div className="welcome-role-badge">
               {user?.role?.replace('_', ' ') || 'student'}
             </div>
+            
+            {(user?.role === 'canteen_owner' || user?.role === 'admin') && (
+              <div style={{ marginTop: '24px' }}>
+                <Link to="/canteen/dashboard" className="home-logout-btn" style={{ display: 'inline-flex', background: 'var(--primary)', borderColor: 'var(--primary)', color: 'white', textDecoration: 'none', fontWeight: '600' }}>
+                  💼 Access Partner Portal &rarr;
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 

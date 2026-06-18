@@ -54,7 +54,105 @@ const migrate = async () => {
     `);
     console.log('✅ Table "otp_codes" created successfully');
 
-    // ─── 4. Seed admin user ─────────────────────────────────────────────
+    // ─── 4. Create canteens table ───────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS canteens (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        owner_id INT NOT NULL,
+        name VARCHAR(150) NOT NULL,
+        address VARCHAR(255),
+        description TEXT,
+        phone VARCHAR(20),
+        opening_hours VARCHAR(100),
+        logo_url VARCHAR(500),
+        status ENUM('active', 'inactive', 'pending') DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_owner_id (owner_id),
+        INDEX idx_status (status)
+      )
+    `);
+    console.log('✅ Table "canteens" created successfully');
+
+    // ─── 5. Create food_categories table ────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS food_categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        description VARCHAR(255),
+        icon VARCHAR(50),
+        sort_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Table "food_categories" created successfully');
+
+    // ─── 6. Create foods table ──────────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS foods (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        canteen_id INT NOT NULL,
+        category_id INT NOT NULL,
+        name VARCHAR(150) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL,
+        quantity INT DEFAULT 0,
+        image_url VARCHAR(500),
+        status ENUM('available', 'unavailable', 'deleted') DEFAULT 'available',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (canteen_id) REFERENCES canteens(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES food_categories(id),
+        INDEX idx_canteen_id (canteen_id),
+        INDEX idx_category_id (category_id),
+        INDEX idx_status (status)
+      )
+    `);
+    console.log('✅ Table "foods" created successfully');
+
+    // ─── 7. Create orders table ─────────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        canteen_id INT NOT NULL,
+        total_amount DECIMAL(10,2) NOT NULL,
+        status ENUM('pending', 'confirmed', 'preparing', 'ready_for_pickup',
+                    'delivering', 'completed', 'cancelled') DEFAULT 'pending',
+        note TEXT,
+        cancelled_by ENUM('student', 'canteen', 'admin') NULL,
+        cancel_reason VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (canteen_id) REFERENCES canteens(id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_canteen_id (canteen_id),
+        INDEX idx_status (status),
+        INDEX idx_created_at (created_at)
+      )
+    `);
+    console.log('✅ Table "orders" created successfully');
+
+    // ─── 8. Create order_items table ────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        order_id INT NOT NULL,
+        food_id INT NOT NULL,
+        quantity INT NOT NULL DEFAULT 1,
+        unit_price DECIMAL(10,2) NOT NULL,
+        subtotal DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (food_id) REFERENCES foods(id),
+        INDEX idx_order_id (order_id)
+      )
+    `);
+    console.log('✅ Table "order_items" created successfully');
+
+    // ─── 9. Seed admin user ─────────────────────────────────────────────
     const adminEmail = 'admin@tlufood.com';
     const adminPassword = 'Admin@1234';
     const adminPasswordHash = await hashPassword(adminPassword);
@@ -65,6 +163,22 @@ const migrate = async () => {
       ['Admin', adminEmail, adminPasswordHash, null, 'admin', true]
     );
     console.log('✅ Admin user seeded (admin@tlufood.com)');
+
+    // ─── 10. Seed food categories ───────────────────────────────────────
+    const categories = [
+      ['Rice', 'Rice dishes', '🍚', 1],
+      ['Noodles', 'Noodle dishes', '🍜', 2],
+      ['Drinks', 'Beverages', '🥤', 3],
+      ['Snacks', 'Light snacks', '🍿', 4],
+      ['Fast Food', 'Quick meals', '🍔', 5],
+    ];
+    for (const [name, desc, icon, order] of categories) {
+      await pool.execute(
+        'INSERT IGNORE INTO food_categories (name, description, icon, sort_order) VALUES (?, ?, ?, ?)',
+        [name, desc, icon, order]
+      );
+    }
+    console.log('✅ Food categories seeded');
 
     console.log('\n🎉 Migration completed successfully!');
   } catch (error) {

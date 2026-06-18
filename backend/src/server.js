@@ -1,6 +1,7 @@
 const app = require('./app');
 const { PORT } = require('./config/env');
 const { testConnection } = require('./config/db');
+const { ensureUploadDirs } = require('./utils/storage');
 
 /**
  * Starts the Express server after verifying the database connection.
@@ -10,10 +11,17 @@ const startServer = async () => {
     // Test database connection before starting the server
     await testConnection();
 
+    // Ensure upload directories exist
+    ensureUploadDirs();
+
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 API base URL: http://localhost:${PORT}/api`);
-      console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
+      console.log(`🔐 Auth:       /api/auth`);
+      console.log(`🏪 Canteens:   /api/canteens`);
+      console.log(`🍕 Foods:      /api/foods`);
+      console.log(`📦 Orders:     /api/orders`);
+      console.log(`📂 Categories: /api/categories`);
     });
 
     // ─── Graceful Shutdown ────────────────────────────────────────────────
