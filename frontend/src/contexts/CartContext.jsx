@@ -24,9 +24,10 @@ export const CartProvider = ({ children }) => {
       return;
     }
     try {
-      const data = await cartService.getMyCarts();
-      setCarts(data || []);
-      const total = (data || []).reduce((acc, c) => acc + c.totalQuantity, 0);
+      const resBody = await cartService.getMyCarts();
+      const cartsList = resBody.data || [];
+      setCarts(cartsList);
+      const total = cartsList.reduce((acc, c) => acc + c.totalQuantity, 0);
       setCartCount(total);
     } catch (error) {
       console.error('Failed to fetch carts summary:', error);
@@ -43,9 +44,9 @@ export const CartProvider = ({ children }) => {
   const fetchCartDetails = useCallback(async (canteenId) => {
     setIsLoading(true);
     try {
-      const data = await cartService.getCartDetails(canteenId);
-      setActiveCart(data);
-      return data;
+      const resBody = await cartService.getCartDetails(canteenId);
+      setActiveCart(resBody.data);
+      return resBody.data;
     } catch (error) {
       console.error(`Failed to fetch cart details for canteen ${canteenId}:`, error);
       throw error;
@@ -60,12 +61,13 @@ export const CartProvider = ({ children }) => {
   const addItem = useCallback(async (foodId, quantity) => {
     setIsLoading(true);
     try {
-      const data = await cartService.addToCart(foodId, quantity);
-      if (activeCart && activeCart.canteenId === data.canteenId) {
-        setActiveCart(data);
+      const resBody = await cartService.addToCart(foodId, quantity);
+      const cart = resBody.data;
+      if (activeCart && activeCart.canteenId === cart.canteenId) {
+        setActiveCart(cart);
       }
       await refreshCarts();
-      return data;
+      return cart;
     } catch (error) {
       console.error('Failed to add item to cart:', error);
       throw error;
@@ -80,10 +82,10 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = useCallback(async (cartItemId, quantity) => {
     setIsLoading(true);
     try {
-      const data = await cartService.updateCartItem(cartItemId, quantity);
-      setActiveCart(data);
+      const resBody = await cartService.updateCartItem(cartItemId, quantity);
+      setActiveCart(resBody.data);
       await refreshCarts();
-      return data;
+      return resBody.data;
     } catch (error) {
       console.error(`Failed to update cart item ${cartItemId}:`, error);
       throw error;
@@ -98,10 +100,10 @@ export const CartProvider = ({ children }) => {
   const removeItem = useCallback(async (cartItemId) => {
     setIsLoading(true);
     try {
-      const data = await cartService.removeCartItem(cartItemId);
-      setActiveCart(data);
+      const resBody = await cartService.removeCartItem(cartItemId);
+      setActiveCart(resBody.data);
       await refreshCarts();
-      return data;
+      return resBody.data;
     } catch (error) {
       console.error(`Failed to remove cart item ${cartItemId}:`, error);
       throw error;
@@ -116,10 +118,10 @@ export const CartProvider = ({ children }) => {
   const clearCanteenCart = useCallback(async (canteenId) => {
     setIsLoading(true);
     try {
-      const data = await cartService.clearCart(canteenId);
-      setActiveCart(data);
+      const resBody = await cartService.clearCart(canteenId);
+      setActiveCart(resBody.data);
       await refreshCarts();
-      return data;
+      return resBody.data;
     } catch (error) {
       console.error(`Failed to clear cart for canteen ${canteenId}:`, error);
       throw error;

@@ -16,8 +16,8 @@ const Dashboard = () => {
     try {
       const statsRes = await getCanteenStats(canteen.id, { period });
       const ordersRes = await getCanteenOrders(canteen.id, { limit: 5 });
-      setStats(statsRes.data);
-      setRecentOrders(ordersRes.data.orders);
+      setStats(statsRes.data.data);
+      setRecentOrders(ordersRes.data.data.orders || []);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {

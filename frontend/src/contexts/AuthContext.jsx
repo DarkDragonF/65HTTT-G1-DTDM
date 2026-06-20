@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       }
       try {
         const { data } = await getMe();
-        setUser(data.user);
+        setUser(data.data.user);
         setIsAuthenticated(true);
       } catch {
         localStorage.removeItem('accessToken');
@@ -41,10 +41,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async (email, password) => {
     const { data } = await loginApi({ email, password });
-    localStorage.setItem('accessToken', data.accessToken);
-    setUser(data.user);
+    localStorage.setItem('accessToken', data.data.accessToken);
+    setUser(data.data.user);
     setIsAuthenticated(true);
-    return data.user;
+    return data.data.user;
   }, []);
 
   const register = useCallback(async (formData) => {

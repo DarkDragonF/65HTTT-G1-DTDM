@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { placeOrderFromCart } from '../../api/orderApi';
+import { useNotification } from '../../hooks/useNotification';
 import './Cart.css';
 
 /**
@@ -11,6 +12,7 @@ import './Cart.css';
 const Cart = () => {
   const navigate = useNavigate();
   const { carts, activeCart, fetchCartDetails, updateQuantity, removeItem, clearCanteenCart, refreshCarts } = useCart();
+  const { showToast, confirm } = useNotification();
   const [selectedCanteenId, setSelectedCanteenId] = useState(null);
   const [note, setNote] = useState('');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -43,27 +45,31 @@ const Cart = () => {
       try {
         await updateQuantity(itemId, nextQty);
       } catch (error) {
-        alert(error.response?.data?.message || 'Failed to update quantity.');
+        showToast(error.response?.data?.message || 'Failed to update quantity.', 'error');
       }
     }
   };
 
   const handleRemoveItem = async (itemId) => {
-    if (window.confirm('Are you sure you want to remove this item?')) {
+    const isAccepted = await confirm('Remove Item', 'Are you sure you want to remove this item from your cart?');
+    if (isAccepted) {
       try {
         await removeItem(itemId);
+        showToast('Item removed from cart.', 'success');
       } catch (error) {
-        alert(error.response?.data?.message || 'Failed to remove item.');
+        showToast(error.response?.data?.message || 'Failed to remove item.', 'error');
       }
     }
   };
 
   const handleClearCart = async () => {
-    if (window.confirm('Are you sure you want to clear your cart?')) {
+    const isAccepted = await confirm('Clear Cart', 'Are you sure you want to remove all items from this canteen cart?');
+    if (isAccepted) {
       try {
         await clearCanteenCart(selectedCanteenId);
+        showToast('Cart cleared successfully.', 'success');
       } catch (error) {
-        alert(error.response?.data?.message || 'Failed to clear cart.');
+        showToast(error.response?.data?.message || 'Failed to clear cart.', 'error');
       }
     }
   };
@@ -77,11 +83,11 @@ const Cart = () => {
       const response = await placeOrderFromCart(selectedCanteenId, { note });
       setNote('');
       await refreshCarts();
-      alert('Order placed successfully!');
+      showToast('Order placed successfully!', 'success');
       const order = response.data.data.order; // Matches backend success payload structure: { success, message, data: { order } }
       navigate(`/orders/${order.id}`);
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to place order.');
+      showToast(error.response?.data?.message || 'Failed to place order.', 'error');
     } finally {
       setIsCheckingOut(false);
     }

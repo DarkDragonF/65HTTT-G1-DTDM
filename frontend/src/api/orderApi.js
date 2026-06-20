@@ -34,3 +34,11 @@ export const updateOrderStatus = (id, status, cancelReason = null) => {
 export const cancelOrder = (id, reason = null) => {
   return axiosInstance.patch(`/orders/${id}/cancel`, { reason });
 };
+
+export const getAvailableDeliveries = () => {
+  return axiosInstance.get('/orders/delivery/available');
+};
+
+export const getMyDeliveries = () => {
+  return axiosInstance.get('/orders/delivery/my');
+};

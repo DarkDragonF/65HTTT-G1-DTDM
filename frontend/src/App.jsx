@@ -16,6 +16,20 @@ import Cart from './pages/student/Cart';
 import Orders from './pages/student/Orders';
 import OrderDetail from './pages/student/OrderDetail';
 import Profile from './pages/student/Profile';
+import CustomerSupport from './pages/student/CustomerSupport';
+
+// Admin Pages
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/admin/Dashboard';
+import Users from './pages/admin/Users';
+import Canteens from './pages/admin/Canteens';
+import AdminSupport from './pages/admin/AdminSupport';
+import Reports from './pages/admin/Reports';
+
+// Delivery Pages
+import DeliveryLayout from './layouts/DeliveryLayout';
+import DeliveryDashboard from './pages/delivery/DeliveryDashboard';
+import DeliveryProfile from './pages/delivery/DeliveryProfile';
 
 // Context Providers
 import { CartProvider } from './contexts/CartContext';
@@ -73,6 +87,14 @@ function App() {
           }
         />
         <Route
+          path="/support"
+          element={
+            <ProtectedRoute>
+              <CustomerSupport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/profile"
           element={
             <ProtectedRoute>
@@ -95,6 +117,37 @@ function App() {
           <Route path="menu" element={<FoodManagement />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="settings" element={<StoreSettings />} />
+        </Route>
+
+        {/* Administration Portal Routes */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="canteens" element={<Canteens />} />
+          <Route path="support" element={<AdminSupport />} />
+          <Route path="reports" element={<Reports />} />
+        </Route>
+
+        {/* Delivery Rider Workspace Routes */}
+        <Route
+          path="/delivery"
+          element={
+            <ProtectedRoute>
+              <DeliveryLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="/delivery/dashboard" replace />} />
+          <Route path="dashboard" element={<DeliveryDashboard />} />
+          <Route path="profile" element={<DeliveryProfile />} />
         </Route>
       </Routes>
     </CartProvider>

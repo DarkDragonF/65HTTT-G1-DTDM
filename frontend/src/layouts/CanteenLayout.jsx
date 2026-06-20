@@ -25,9 +25,10 @@ const CanteenLayout = () => {
   const fetchCanteen = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data } = await getMyCanteens();
-      if (data && data.length > 0) {
-        setCanteen(data[0]);
+      const { data: response } = await getMyCanteens();
+      const canteens = response?.data?.canteens || [];
+      if (canteens && canteens.length > 0) {
+        setCanteen(canteens[0]);
         setShowRegForm(false);
       } else {
         setCanteen(null);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import orderService from '../../services/orderService';
+import { useNotification } from '../../hooks/useNotification';
 import './OrderDetail.css';
 
 /**
@@ -10,6 +11,7 @@ import './OrderDetail.css';
 const OrderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useNotification();
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [cancelReason, setCancelReason] = useState('');
@@ -44,10 +46,10 @@ const OrderDetail = () => {
       await orderService.cancelOrder(id, cancelReason);
       setShowCancelModal(false);
       setCancelReason('');
-      alert('Order cancelled successfully.');
+      showToast('Order cancelled successfully.', 'success');
       fetchOrderDetails();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to cancel order.');
+      showToast(error.response?.data?.message || 'Failed to cancel order.', 'error');
     } finally {
       setIsCancelling(false);
     }

@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { getCanteenOrders, getOrderDetails, updateOrderStatus } from '../../api/orderApi';
+import { useNotification } from '../../hooks/useNotification';
 import './OrderManagement.css';
 
 const OrderManagement = () => {
   const { canteen } = useOutletContext();
+  const { showToast } = useNotification();
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState('active'); // 'active', 'completed', 'cancelled'
   const [isLoading, setIsLoading] = useState(true);
@@ -22,8 +24,8 @@ const OrderManagement = () => {
     if (!canteen) return;
     setIsLoading(true);
     try {
-      const { data } = await getCanteenOrders(canteen.id);
-      setOrders(data.orders || []);
+      const { data: resBody } = await getCanteenOrders(canteen.id);
+      setOrders(resBody.data?.orders || []);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
     } finally {
@@ -38,10 +40,10 @@ const OrderManagement = () => {
   const handleViewDetails = async (orderId) => {
     setIsLoadingDetails(true);
     try {
-      const { data } = await getOrderDetails(orderId);
-      setSelectedOrder(data);
+      const { data: resBody } = await getOrderDetails(orderId);
+      setSelectedOrder(resBody.data?.order || null);
     } catch (error) {
-      alert('Failed to fetch order details.');
+      showToast('Failed to fetch order details.', 'error');
     } finally {
       setIsLoadingDetails(false);
     }
@@ -50,6 +52,7 @@ const OrderManagement = () => {
   const handleUpdateStatus = async (orderId, nextStatus) => {
     try {
       await updateOrderStatus(orderId, nextStatus);
+      showToast(`Order status updated to ${nextStatus.replace(/_/g, ' ')}!`, 'success');
       // Refresh list
       fetchOrders();
       // If modal is open, update details
@@ -57,7 +60,7 @@ const OrderManagement = () => {
         handleViewDetails(orderId);
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to update order status.');
+      showToast(error.response?.data?.message || 'Failed to update order status.', 'error');
     }
   };
 
@@ -72,13 +75,14 @@ const OrderManagement = () => {
     setIsSubmittingCancel(true);
     try {
       await updateOrderStatus(cancellingOrder.id, 'cancelled', cancelReason);
+      showToast('Order cancelled successfully.', 'success');
       setCancellingOrder(null);
       fetchOrders();
       if (selectedOrder && selectedOrder.id === cancellingOrder.id) {
         setSelectedOrder(null);
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to cancel order.');
+      showToast(error.response?.data?.message || 'Failed to cancel order.', 'error');
     } finally {
       setIsSubmittingCancel(false);
     }

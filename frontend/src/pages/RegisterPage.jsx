@@ -213,9 +213,8 @@ const RegisterPage = () => {
               {[1, 2, 3].map((bar) => (
                 <div
                   key={bar}
-                  className={`password-strength-bar ${
-                    passwordStrength.level >= bar ? `active ${passwordStrength.className}` : ''
-                  }`}
+                  className={`password-strength-bar ${passwordStrength.level >= bar ? `active ${passwordStrength.className}` : ''
+                    }`}
                 />
               ))}
             </div>
@@ -252,7 +251,7 @@ const RegisterPage = () => {
           <div className="role-options">
             {[
               { value: 'student', label: '🎓 Student' },
-              { value: 'vendor', label: '👨‍🍳 Vendor' },
+              { value: 'canteen_owner', label: '👨‍🍳 Vendor' },
             ].map(({ value, label }) => (
               <label
                 key={value}

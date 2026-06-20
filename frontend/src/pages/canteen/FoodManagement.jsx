@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { getFoodsByCanteen, getCategories, createFood, updateFood, toggleAvailability, uploadFoodImage, deleteFood } from '../../api/foodApi';
+import { useNotification } from '../../hooks/useNotification';
 import './FoodManagement.css';
 
 const FoodManagement = () => {
+  const { showToast, confirm } = useNotification();
   const { canteen } = useOutletContext();
   const [foods, setFoods] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -37,8 +39,8 @@ const FoodManagement = () => {
     try {
       const foodsRes = await getFoodsByCanteen(canteen.id);
       const catsRes = await getCategories();
-      setFoods(foodsRes.data.foods || []);
-      setCategories(catsRes.data.categories || []);
+      setFoods(foodsRes.data.data.foods || []);
+      setCategories(catsRes.data.data.categories || []);
     } catch (error) {
       console.error('Failed to load menu data:', error);
     } finally {
@@ -93,8 +95,10 @@ const FoodManagement = () => {
     try {
       if (modalType === 'add') {
         await createFood(canteen.id, payload);
+        showToast('Food item created successfully.', 'success');
       } else {
         await updateFood(currentFood.id, payload);
+        showToast('Food item updated successfully.', 'success');
       }
       setShowModal(false);
       loadData();
@@ -118,12 +122,14 @@ const FoodManagement = () => {
   };
 
   const handleDeleteFood = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this food item?')) return;
+    const isAccepted = await confirm('Delete Item', 'Are you sure you want to delete this food item?');
+    if (!isAccepted) return;
     try {
       await deleteFood(id);
+      showToast('Food item deleted successfully.', 'success');
       loadData();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to delete food item.');
+      showToast(error.response?.data?.message || 'Failed to delete food item.', 'error');
     }
   };
 
@@ -140,9 +146,10 @@ const FoodManagement = () => {
     try {
       setIsLoading(true);
       await uploadFoodImage(uploadingFoodId, file);
+      showToast('Image uploaded successfully.', 'success');
       loadData();
     } catch (error) {
-      alert(error.response?.data?.message || 'Image upload failed.');
+      showToast(error.response?.data?.message || 'Image upload failed.', 'error');
     } finally {
       setUploadingFoodId(null);
       setIsLoading(false);

@@ -4,6 +4,7 @@ import { getAllCanteens } from '../../api/canteenApi';
 import { getFoodsByCanteen } from '../../api/foodApi';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotification } from '../../hooks/useNotification';
 import './Home.css';
 
 /**
@@ -14,6 +15,7 @@ const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { addItem, carts } = useCart();
+  const { showToast } = useNotification();
   
   const [canteens, setCanteens] = useState([]);
   const [selectedCanteen, setSelectedCanteen] = useState(null);
@@ -28,9 +30,10 @@ const Home = () => {
     const fetchCanteens = async () => {
       setIsLoading(true);
       try {
-        const { data } = await getAllCanteens();
+        const { data: response } = await getAllCanteens();
+        const canteensList = response?.data?.canteens || [];
         // Only show active canteens
-        setCanteens((data || []).filter(c => c.status === 'active'));
+        setCanteens(canteensList.filter(c => c.status === 'active'));
       } catch (error) {
         console.error('Failed to load canteens:', error);
       } finally {
@@ -45,9 +48,10 @@ const Home = () => {
     setIsLoadingFoods(true);
     setSelectedCategory('All');
     try {
-      const { data } = await getFoodsByCanteen(canteen.id);
+      const { data: response } = await getFoodsByCanteen(canteen.id);
+      const foodsList = response?.data?.foods || [];
       // Only show available food items
-      const availableFoods = (data || []).filter(f => f.status === 'available');
+      const availableFoods = foodsList.filter(f => f.status === 'available');
       setFoods(availableFoods);
       
       // Extract unique categories present in foods
@@ -79,9 +83,9 @@ const Home = () => {
     const qty = quantities[food.id] || 1;
     try {
       await addItem(food.id, qty);
-      alert(`Added ${qty}x "${food.name}" to cart!`);
+      showToast(`Added ${qty}x "${food.name}" to cart!`, 'success');
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to add item to cart.');
+      showToast(error.response?.data?.message || 'Failed to add item to cart.', 'error');
     }
   };
 

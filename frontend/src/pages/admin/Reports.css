@@ -1,0 +1,349 @@
+.admin-reports-view {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.reports-header-section h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.reports-header-section p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* Tab Navigation */
+.reports-tabs-nav {
+  display: flex;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1px;
+}
+
+.tab-nav-btn {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.tab-nav-btn:hover {
+  color: var(--text-primary);
+}
+
+.tab-nav-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Health Grid */
+.health-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.health-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.health-card h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: var(--text-primary);
+}
+
+.health-node-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.health-node-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+}
+
+.node-icon {
+  font-size: 1.5rem;
+}
+
+.node-detail {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.node-detail strong {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.node-detail span {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.node-status-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.node-status-tag.healthy,
+.node-status-tag.OK {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+}
+
+.node-status-tag.unhealthy,
+.node-status-tag.ERROR {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+}
+
+/* Metrics Details */
+.metrics-indicators-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric-indicator-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+}
+
+.metric-indicator-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.metric-indicator-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.refresh-health-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 0.88rem;
+}
+
+/* Settings view */
+.settings-list-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+}
+
+.settings-list-header {
+  margin-bottom: 24px;
+}
+
+.settings-list-header h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.settings-list-header p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.settings-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  gap: 24px;
+}
+
+.setting-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.setting-item-meta strong {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.setting-item-meta span {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.setting-item-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setting-item-input {
+  width: 220px;
+  padding: 8px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  text-align: right;
+  transition: var(--transition);
+}
+
+.setting-item-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.setting-saving-spinner {
+  font-size: 1rem;
+}
+
+/* Audit logs list */
+.audit-timestamp {
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.audit-admin-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.audit-admin-info strong {
+  color: var(--text-primary);
+}
+
+.audit-admin-info span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.audit-action-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.audit-action-tag.user-suspend,
+.audit-action-tag.user-status {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.audit-action-tag.canteen-approve {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.audit-action-tag.setting-update {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.audit-target-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.audit-client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.audit-ua {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.audit-details-json {
+  max-width: 250px;
+  overflow: auto;
+}
+
+.audit-details-json pre {
+  margin: 0;
+  font-size: 0.72rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.audit-pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 0 4px;
+}
+
+.audit-page-display {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+}

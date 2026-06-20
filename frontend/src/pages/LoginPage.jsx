@@ -77,8 +77,16 @@ const LoginPage = () => {
     setIsLoading(true);
     setError('');
     try {
-      await login(formData.email, formData.password);
-      navigate('/', { replace: true });
+      const user = await login(formData.email, formData.password);
+      if (user?.role === 'admin' || user?.role === 'super_admin') {
+        navigate('/admin', { replace: true });
+      } else if (user?.role === 'delivery_staff') {
+        navigate('/delivery', { replace: true });
+      } else if (user?.role === 'canteen_owner') {
+        navigate('/canteen', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       const message =
         err.response?.data?.message || 'Login failed. Please try again.';

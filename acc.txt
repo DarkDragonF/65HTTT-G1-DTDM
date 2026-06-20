@@ -1,0 +1,6 @@
+Super Admin	                superadmin@tlufood.com	    SuperAdmin@1234	        Verified
+Admin (Secondary)	        admin2@tlufood.com	        Admin@1234	            Verified
+Admin (Default)	            admin@tlufood.com	        Admin@1234	            Verified
+Canteen Owner	            owner@tlufood.com	        Owner@1234	            Verified
+Delivery Rider	            delivery@tlufood.com	    Delivery@1234	        Verified
+Student	                    student@tlufood.com	        Student@1234	        Verified

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import './HomePage.css';
@@ -6,6 +7,19 @@ import './HomePage.css';
 const HomePage = () => {
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin' || user.role === 'super_admin') {
+        navigate('/admin', { replace: true });
+      } else if (user.role === 'delivery_staff') {
+        navigate('/delivery', { replace: true });
+      } else if (user.role === 'canteen_owner') {
+        navigate('/canteen', { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
   return (
     <div className="home-page">
@@ -36,19 +50,11 @@ const HomePage = () => {
               Welcome back, <span className="welcome-name">{user?.full_name || 'User'}</span>!
             </h2>
             <p className="welcome-subtitle">
-              {user?.role === 'canteen_owner' ? 'Manage your store, menu items, and process orders.' : 'What would you like to eat today?'}
+              What would you like to eat today?
             </p>
             <div className="welcome-role-badge">
               {user?.role?.replace('_', ' ') || 'student'}
             </div>
-            
-            {(user?.role === 'canteen_owner' || user?.role === 'admin') && (
-              <div style={{ marginTop: '24px' }}>
-                <Link to="/canteen/dashboard" className="home-logout-btn" style={{ display: 'inline-flex', background: 'var(--primary)', borderColor: 'var(--primary)', color: 'white', textDecoration: 'none', fontWeight: '600' }}>
-                  💼 Access Partner Portal &rarr;
-                </Link>
-              </div>
-            )}
           </div>
         </section>
 
@@ -74,6 +80,12 @@ const HomePage = () => {
             <span className="feature-icon">📦</span>
             <h3>My Orders</h3>
             <p>Track your current and past orders</p>
+            <span className="feature-badge active-badge">Go &rarr;</span>
+          </Link>
+          <Link to="/support" className="feature-card">
+            <span className="feature-icon">🎫</span>
+            <h3>Helpdesk support</h3>
+            <p>Submit dispute tickets and chat with helpdesk</p>
             <span className="feature-badge active-badge">Go &rarr;</span>
           </Link>
           <Link to="/profile" className="feature-card">
