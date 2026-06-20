@@ -18,8 +18,9 @@ const migrate = async () => {
         email VARCHAR(255) NOT NULL UNIQUE,
         password_hash VARCHAR(255) NOT NULL,
         phone VARCHAR(20),
-        role ENUM('student', 'lecturer', 'canteen_owner', 'delivery_staff', 'admin') DEFAULT 'student',
+        role ENUM('student', 'lecturer', 'canteen_owner', 'delivery_staff', 'admin', 'super_admin') DEFAULT 'student',
         is_verified BOOLEAN DEFAULT FALSE,
+        status ENUM('active', 'suspended') DEFAULT 'active',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -153,6 +154,20 @@ const migrate = async () => {
       console.log('✅ Column "delivery_staff_id" added to "orders"');
     }
 
+    // Alter user role to include super_admin
+    await pool.execute(`
+      ALTER TABLE users 
+      MODIFY COLUMN role ENUM('student', 'lecturer', 'canteen_owner', 'delivery_staff', 'admin', 'super_admin') DEFAULT 'student'
+    `);
+    console.log('✅ Column "role" in "users" updated to include "super_admin"');
+
+    // Add status column to users if not exists
+    const [colsStatus] = await pool.execute("SHOW COLUMNS FROM users LIKE 'status'");
+    if (colsStatus.length === 0) {
+      await pool.execute("ALTER TABLE users ADD COLUMN status ENUM('active', 'suspended') DEFAULT 'active' AFTER is_verified");
+      console.log('✅ Column "status" added to "users"');
+    }
+
     // ─── 8. Create order_items table ────────────────────────────────────
     await pool.execute(`
       CREATE TABLE IF NOT EXISTS order_items (
@@ -242,6 +257,155 @@ const migrate = async () => {
     `);
     console.log('✅ Table "notifications" created successfully');
 
+    // ─── 8f. Create permissions table ────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS permissions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        description VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Table "permissions" created successfully');
+
+    // ─── 8g. Create role_permissions table ────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS role_permissions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        role VARCHAR(50) NOT NULL,
+        permission_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+        UNIQUE KEY uk_role_permission (role, permission_id)
+      )
+    `);
+    console.log('✅ Table "role_permissions" created successfully');
+
+    // ─── 8h. Create audit_logs table ─────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NULL,
+        action VARCHAR(100) NOT NULL,
+        target_type VARCHAR(50) NOT NULL,
+        target_id INT NULL,
+        ip_address VARCHAR(45) NULL,
+        user_agent VARCHAR(255) NULL,
+        details TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+        INDEX idx_action (action),
+        INDEX idx_created_at (created_at)
+      )
+    `);
+    console.log('✅ Table "audit_logs" created successfully');
+
+    // ─── 8i. Create contracts table ──────────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS contracts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        canteen_id INT NOT NULL,
+        contract_number VARCHAR(50) UNIQUE NOT NULL,
+        status ENUM('draft', 'sent', 'signed', 'voided') DEFAULT 'sent',
+        file_url VARCHAR(500) NULL,
+        signed_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (canteen_id) REFERENCES canteens(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('✅ Table "contracts" created successfully');
+
+    // ─── 8j. Create support_tickets table ────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS support_tickets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        order_id INT NULL,
+        subject VARCHAR(150) NOT NULL,
+        description TEXT NOT NULL,
+        priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+        status ENUM('open', 'in_progress', 'resolved', 'escalated') DEFAULT 'open',
+        assigned_to INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL,
+        FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('✅ Table "support_tickets" created successfully');
+
+    // ─── 8k. Create support_ticket_comments table ─────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS support_ticket_comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ticket_id INT NOT NULL,
+        user_id INT NOT NULL,
+        message TEXT NOT NULL,
+        is_internal BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('✅ Table "support_ticket_comments" created successfully');
+
+    // ─── 8l. Create delivery_staff_profiles table ─────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS delivery_staff_profiles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL UNIQUE,
+        total_deliveries INT DEFAULT 0,
+        completed_deliveries INT DEFAULT 0,
+        cancelled_deliveries INT DEFAULT 0,
+        average_delivery_time_mins INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('✅ Table "delivery_staff_profiles" created successfully');
+
+    // ─── 8m. Create analytics_snapshots table ────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS analytics_snapshots (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        snapshot_date DATE NOT NULL UNIQUE,
+        total_orders INT DEFAULT 0,
+        total_revenue DECIMAL(10,2) DEFAULT 0.00,
+        daily_active_users INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Table "analytics_snapshots" created successfully');
+
+    // ─── 8n. Create platform_settings table ──────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS platform_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        setting_key VARCHAR(100) UNIQUE NOT NULL,
+        setting_value TEXT NOT NULL,
+        description VARCHAR(255) NULL,
+        updated_by INT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+      )
+    `);
+    console.log('✅ Table "platform_settings" created successfully');
+
+    // ─── 8o. Create system_metrics table ──────────────────────────────────
+    await pool.execute(`
+      CREATE TABLE IF NOT EXISTS system_metrics (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        metric_name VARCHAR(100) NOT NULL,
+        value DOUBLE NOT NULL,
+        unit VARCHAR(20) NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Table "system_metrics" created successfully');
+
     // ─── 9. Seed admin user ─────────────────────────────────────────────
     const adminEmail = 'admin@tlufood.com';
     const adminPassword = 'Admin@1234';
@@ -269,6 +433,77 @@ const migrate = async () => {
       );
     }
     console.log('✅ Food categories seeded');
+
+    // ─── 11. Seed permissions ───────────────────────────────────────────
+    const permissions = [
+      ['view_dashboard', 'View dashboard and statistics'],
+      ['manage_users', 'View, lock/unlock, suspend/restore users'],
+      ['manage_canteens', 'Approve, reject, or suspend canteens'],
+      ['manage_delivery', 'View delivery staff performance and assign orders'],
+      ['manage_orders', 'View, track, and cancel orders'],
+      ['manage_settings', 'Modify system-wide settings'],
+      ['manage_support', 'Respond to support tickets and disputes'],
+      ['view_audit_logs', 'Access system security logs'],
+      ['manage_security', 'Super admin secrets and settings configuration']
+    ];
+
+    for (const [name, desc] of permissions) {
+      await pool.execute(
+        'INSERT IGNORE INTO permissions (name, description) VALUES (?, ?)',
+        [name, desc]
+      );
+    }
+    console.log('✅ Permissions seeded');
+
+    // Get all seeded permissions to map IDs
+    const [permRows] = await pool.execute('SELECT id, name FROM permissions');
+    const permMap = permRows.reduce((acc, row) => {
+      acc[row.name] = row.id;
+      return acc;
+    }, {});
+
+    // Role mappings
+    const adminPermissions = [
+      'view_dashboard', 'manage_users', 'manage_canteens', 
+      'manage_delivery', 'manage_orders', 'manage_settings', 
+      'manage_support', 'view_audit_logs'
+    ];
+    const superAdminPermissions = [...adminPermissions, 'manage_security'];
+
+    for (const permName of adminPermissions) {
+      const permId = permMap[permName];
+      if (permId) {
+        await pool.execute(
+          'INSERT IGNORE INTO role_permissions (role, permission_id) VALUES (?, ?)',
+          ['admin', permId]
+        );
+      }
+    }
+    for (const permName of superAdminPermissions) {
+      const permId = permMap[permName];
+      if (permId) {
+        await pool.execute(
+          'INSERT IGNORE INTO role_permissions (role, permission_id) VALUES (?, ?)',
+          ['super_admin', permId]
+        );
+      }
+    }
+    console.log('✅ Role permissions seeded');
+
+    // ─── 12. Seed default platform settings ─────────────────────────────
+    const defaultSettings = [
+      ['platform_name', 'TLU Food', 'The public facing name of the food portal'],
+      ['contact_email', 'support@tlufood.com', 'System support email contact address'],
+      ['order_auto_assign', 'true', 'Enable automatic order assignments to delivery staff'],
+      ['delivery_fee', '10000', 'Flat-rate delivery fee in VND']
+    ];
+    for (const [key, val, desc] of defaultSettings) {
+      await pool.execute(
+        'INSERT IGNORE INTO platform_settings (setting_key, setting_value, description) VALUES (?, ?, ?)',
+        [key, val, desc]
+      );
+    }
+    console.log('✅ Platform settings seeded');
 
     console.log('\n🎉 Migration completed successfully!');
   } catch (error) {

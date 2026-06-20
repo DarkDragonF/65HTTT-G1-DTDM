@@ -168,6 +168,11 @@ const authService = {
       throw new AppError('Please verify your email first', 403);
     }
 
+    // Check if account is suspended
+    if (user.status === 'suspended') {
+      throw new AppError('Your account has been suspended. Please contact support.', 403);
+    }
+
     // 4. Generate access token
     const accessToken = generateAccessToken({
       id: user.id,
@@ -225,6 +230,10 @@ const authService = {
     const user = await User.findById(decoded.id);
     if (!user) {
       throw new AppError('User not found', 401);
+    }
+
+    if (user.status === 'suspended') {
+      throw new AppError('Your account has been suspended. Please contact support.', 403);
     }
 
     // 5. Generate new access token

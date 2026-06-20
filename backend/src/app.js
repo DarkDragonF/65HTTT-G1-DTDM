@@ -9,6 +9,10 @@ const orderRoutes = require('./routes/orderRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const adminUserRoutes = require('./routes/adminUserRoutes');
+const adminCanteenRoutes = require('./routes/adminCanteenRoutes');
+const supportRoutes = require('./routes/supportRoutes');
 const { errorHandler, AppError } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -45,6 +49,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminUserRoutes);
+app.use('/api/admin', adminCanteenRoutes);
+app.use('/api/support', supportRoutes);
 
 // ─── Serve Uploaded Files ───────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

@@ -44,7 +44,7 @@ const User = {
    */
   findById: async (id) => {
     const [rows] = await pool.execute(
-      `SELECT id, full_name, email, phone, role, is_verified, created_at, updated_at
+      `SELECT id, full_name, email, phone, role, is_verified, status, created_at, updated_at
        FROM users WHERE id = ?`,
       [id]
     );
