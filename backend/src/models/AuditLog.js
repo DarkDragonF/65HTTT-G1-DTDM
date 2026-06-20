@@ -33,7 +33,7 @@ const AuditLog = {
     }
 
     query += ' ORDER BY al.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit, 10), parseInt(offset, 10));
+    params.push(String(limit), String(offset));
 
     const [rows] = await pool.execute(query, params);
     return rows;

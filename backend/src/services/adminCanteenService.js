@@ -32,7 +32,7 @@ const adminCanteenService = {
     }
 
     query += ' ORDER BY c.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit, 10), parseInt(offset, 10));
+    params.push(String(limit), String(offset));
 
     const [rows] = await pool.execute(query, params);
     return rows;
