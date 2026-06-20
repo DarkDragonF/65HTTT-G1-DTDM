@@ -73,7 +73,8 @@ const verifyOrderOwnership = async (req, res, next) => {
     if (!orderId) throw new AppError('Order ID is required', 400);
 
     const [rows] = await pool.execute(
-      `SELECT c.owner_id, o.user_id FROM orders o
+      `SELECT c.owner_id, o.user_id, o.delivery_staff_id, o.status
+       FROM orders o
        JOIN canteens c ON o.canteen_id = c.id
        WHERE o.id = ?`,
       [orderId]
@@ -81,11 +82,13 @@ const verifyOrderOwnership = async (req, res, next) => {
 
     if (rows.length === 0) throw new AppError('Order not found', 404);
     
-    // Allow canteen owner OR the student who placed the order
+    // Allow canteen owner, student, assigned delivery staff, or available delivery staff (if status is ready_for_pickup)
     const isOwner = rows[0].owner_id === req.user.id;
     const isCustomer = rows[0].user_id === req.user.id;
+    const isAssignedDelivery = rows[0].delivery_staff_id === req.user.id;
+    const isAvailableDelivery = req.user.role === 'delivery_staff' && rows[0].status === 'ready_for_pickup';
     
-    if (!isOwner && !isCustomer) {
+    if (!isOwner && !isCustomer && !isAssignedDelivery && !isAvailableDelivery) {
       throw new AppError('Forbidden. You do not have access to this order.', 403);
     }
 

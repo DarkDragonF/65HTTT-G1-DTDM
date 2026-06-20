@@ -37,10 +37,10 @@ const createOrderSchema = Joi.object({
 
 const updateOrderStatusSchema = Joi.object({
   status: Joi.string()
-    .valid('confirmed', 'preparing', 'ready_for_pickup', 'cancelled')
+    .valid('confirmed', 'preparing', 'ready_for_pickup', 'delivering', 'completed', 'cancelled')
     .required()
     .messages({
-      'any.only': 'Status must be one of: confirmed, preparing, ready_for_pickup, cancelled',
+      'any.only': 'Status must be one of: confirmed, preparing, ready_for_pickup, delivering, completed, cancelled',
       'any.required': 'Status is required',
     }),
   cancelReason: Joi.string().max(255).when('status', {

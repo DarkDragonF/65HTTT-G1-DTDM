@@ -1,0 +1,102 @@
+.student-profile {
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: calc(100vh - 100px);
+}
+
+.profile-header h2 {
+  font-size: 2rem;
+  color: var(--primary, #e28743);
+  margin: 0 0 8px 0;
+}
+
+.profile-header p {
+  color: #666;
+  margin: 0;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.profile-avatar-large {
+  width: 90px;
+  height: 90px;
+  background: var(--primary, #e28743);
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(226, 135, 67, 0.3);
+}
+
+.profile-details-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f9f9f9;
+}
+
+.profile-detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #777;
+  font-size: 0.95rem;
+}
+
+.detail-value {
+  color: #222;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.detail-value.role-badge {
+  text-transform: capitalize;
+  background: #f0f0f0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.detail-value.status-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.detail-value.status-badge.verified {
+  background: #ebfbee;
+  color: #2ecc71;
+}
+
+.detail-value.status-badge.unverified {
+  background: #fff0f6;
+  color: #eb2f96;
+}

@@ -138,6 +138,10 @@
   animation-fill-mode: backwards;
   position: relative;
   overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
 }
 
 .feature-card:nth-child(1) { animation-delay: 0.1s; }
@@ -149,6 +153,19 @@
   border-color: var(--primary);
   transform: translateY(-4px);
   box-shadow: var(--shadow-sm);
+}
+
+.feature-card:hover .active-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.cart-count-badge {
+  background: var(--primary) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  font-weight: 600 !important;
 }
 
 .feature-icon {

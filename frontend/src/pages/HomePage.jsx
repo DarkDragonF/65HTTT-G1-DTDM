@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useCart } from '../hooks/useCart';
 import './HomePage.css';
 
 const HomePage = () => {
   const { user, logout } = useAuth();
+  const { cartCount } = useCart();
 
   return (
     <div className="home-page">
@@ -52,30 +54,34 @@ const HomePage = () => {
 
         {/* Quick Stats / Placeholder Cards */}
         <section className="home-features">
-          <div className="feature-card">
+          <Link to="/browse" className="feature-card">
             <span className="feature-icon">🍕</span>
             <h3>Browse Food</h3>
             <p>Explore delicious meals from campus canteens</p>
-            <span className="feature-badge">Coming Soon</span>
-          </div>
-          <div className="feature-card">
+            <span className="feature-badge active-badge">Go &rarr;</span>
+          </Link>
+          <Link to="/cart" className="feature-card">
             <span className="feature-icon">🛒</span>
             <h3>My Cart</h3>
             <p>Review and manage your food selections</p>
-            <span className="feature-badge">Coming Soon</span>
-          </div>
-          <div className="feature-card">
+            {cartCount > 0 ? (
+              <span className="feature-badge cart-count-badge">{cartCount} Items</span>
+            ) : (
+              <span className="feature-badge active-badge">Go &rarr;</span>
+            )}
+          </Link>
+          <Link to="/orders" className="feature-card">
             <span className="feature-icon">📦</span>
             <h3>My Orders</h3>
             <p>Track your current and past orders</p>
-            <span className="feature-badge">Coming Soon</span>
-          </div>
-          <div className="feature-card">
-            <span className="feature-icon">⭐</span>
-            <h3>Reviews</h3>
-            <p>Rate and review your dining experience</p>
-            <span className="feature-badge">Coming Soon</span>
-          </div>
+            <span className="feature-badge active-badge">Go &rarr;</span>
+          </Link>
+          <Link to="/profile" className="feature-card">
+            <span className="feature-icon">👤</span>
+            <h3>My Profile</h3>
+            <p>Manage your account settings and profile information</p>
+            <span className="feature-badge active-badge">Go &rarr;</span>
+          </Link>
         </section>
 
         {/* Footer */}

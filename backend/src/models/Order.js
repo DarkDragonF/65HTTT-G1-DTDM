@@ -8,33 +8,37 @@ const Order = {
   /**
    * Creates a new order.
    * @param {Object} params
+   * @param {string} params.orderNumber - Generated order number
    * @param {number} params.userId - Customer user ID
    * @param {number} params.canteenId - Canteen ID
    * @param {number} params.totalAmount - Total order amount
    * @param {string} [params.note] - Order note
+   * @param {Object} [connection] - Optional database connection for transaction
    * @returns {Promise<number>} The inserted order's ID
    */
-  create: async ({ userId, canteenId, totalAmount, note }) => {
-    const [result] = await pool.execute(
-      `INSERT INTO orders (user_id, canteen_id, total_amount, note)
-       VALUES (?, ?, ?, ?)`,
-      [userId, canteenId, totalAmount, note || null]
+  create: async ({ orderNumber, userId, canteenId, totalAmount, note }, connection = null) => {
+    const db = connection || pool;
+    const [result] = await db.execute(
+      `INSERT INTO orders (order_number, user_id, canteen_id, total_amount, note)
+       VALUES (?, ?, ?, ?, ?)`,
+      [orderNumber, userId, canteenId, totalAmount, note || null]
     );
     return result.insertId;
   },
 
   /**
-   * Finds an order by ID with customer and canteen info.
+   * Finds an order by ID with customer, canteen, and delivery staff info.
    * @param {number} id - Order ID
    * @returns {Promise<Object|null>} The order record or null
    */
   findById: async (id) => {
     const [rows] = await pool.execute(
       `SELECT o.*, u.full_name AS customer_name, u.phone AS customer_phone,
-              c.name AS canteen_name
+              c.name AS canteen_name, ds.full_name AS delivery_staff_name, ds.phone AS delivery_staff_phone
        FROM orders o
        JOIN users u ON o.user_id = u.id
        JOIN canteens c ON o.canteen_id = c.id
+       LEFT JOIN users ds ON o.delivery_staff_id = ds.id
        WHERE o.id = ?`,
       [id]
     );
@@ -146,20 +150,113 @@ const Order = {
    * @param {Object} [cancelInfo] - Cancellation info
    * @param {string} [cancelInfo.cancelledBy] - Who cancelled
    * @param {string} [cancelInfo.cancelReason] - Why cancelled
+   * @param {Object} [connection] - Optional database connection for transaction
    * @returns {Promise<void>}
    */
-  updateStatus: async (id, status, cancelInfo) => {
+  updateStatus: async (id, status, cancelInfo, connection = null) => {
+    const db = connection || pool;
     if (status === 'cancelled' && cancelInfo) {
-      await pool.execute(
+      await db.execute(
         'UPDATE orders SET status = ?, cancelled_by = ?, cancel_reason = ? WHERE id = ?',
         [status, cancelInfo.cancelledBy, cancelInfo.cancelReason, id]
       );
     } else {
-      await pool.execute(
+      await db.execute(
         'UPDATE orders SET status = ? WHERE id = ?',
         [status, id]
       );
     }
+  },
+
+  /**
+   * Finds an order by its order number.
+   * @param {string} orderNumber - The unique order number string
+   * @returns {Promise<Object|null>} The order or null
+   */
+  findByOrderNumber: async (orderNumber) => {
+    const [rows] = await pool.execute(
+      `SELECT o.*, u.full_name AS customer_name, u.phone AS customer_phone,
+              c.name AS canteen_name, ds.full_name AS delivery_staff_name, ds.phone AS delivery_staff_phone
+       FROM orders o
+       JOIN users u ON o.user_id = u.id
+       JOIN canteens c ON o.canteen_id = c.id
+       LEFT JOIN users ds ON o.delivery_staff_id = ds.id
+       WHERE o.order_number = ?`,
+      [orderNumber]
+    );
+    return rows[0] || null;
+  },
+
+  /**
+   * Assigns a delivery staff member to an order and updates status to delivering.
+   */
+  assignDeliveryStaff: async (id, staffId) => {
+    await pool.execute(
+      'UPDATE orders SET delivery_staff_id = ?, status = ? WHERE id = ?',
+      [staffId, 'delivering', id]
+    );
+  },
+
+  /**
+   * Finds all orders in 'ready_for_pickup' status.
+   */
+  findAvailableForPickup: async ({ page = 1, limit = 10 } = {}) => {
+    let query = `SELECT o.*, c.name AS canteen_name, u.full_name AS customer_name
+                 FROM orders o
+                 JOIN canteens c ON o.canteen_id = c.id
+                 JOIN users u ON o.user_id = u.id
+                 WHERE o.status = 'ready_for_pickup'`;
+    let countQuery = "SELECT COUNT(*) AS total FROM orders WHERE status = 'ready_for_pickup'";
+
+    const [countRows] = await pool.execute(countQuery);
+    const total = countRows[0].total;
+
+    const offset = (page - 1) * limit;
+    query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
+    const [rows] = await pool.execute(query, [String(limit), String(offset)]);
+
+    return {
+      orders: rows,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit),
+    };
+  },
+
+  /**
+   * Finds orders assigned to a specific delivery staff member.
+   */
+  findByDeliveryStaffId: async (staffId, { status, page = 1, limit = 10 } = {}) => {
+    let query = `SELECT o.*, c.name AS canteen_name, u.full_name AS customer_name
+                 FROM orders o
+                 JOIN canteens c ON o.canteen_id = c.id
+                 JOIN users u ON o.user_id = u.id
+                 WHERE o.delivery_staff_id = ?`;
+    let countQuery = 'SELECT COUNT(*) AS total FROM orders WHERE delivery_staff_id = ?';
+    const params = [staffId];
+
+    if (status) {
+      query += ' AND o.status = ?';
+      countQuery += ' AND o.status = ?';
+      params.push(status);
+    }
+
+    const [countRows] = await pool.execute(countQuery, params);
+    const total = countRows[0].total;
+
+    const offset = (page - 1) * limit;
+    query += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
+    const paginatedParams = [...params, String(limit), String(offset)];
+    const [rows] = await pool.execute(query, paginatedParams);
+
+    return {
+      orders: rows,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit),
+    };
   },
 
   /**

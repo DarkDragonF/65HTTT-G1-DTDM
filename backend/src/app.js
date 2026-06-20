@@ -7,6 +7,8 @@ const canteenRoutes = require('./routes/canteenRoutes');
 const foodRoutes = require('./routes/foodRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const { errorHandler, AppError } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -41,6 +43,8 @@ app.use('/api/canteens', canteenRoutes);
 app.use('/api/foods', foodRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ─── Serve Uploaded Files ───────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

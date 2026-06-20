@@ -11,9 +11,10 @@ const OrderItem = {
    * @param {Array<Object>} items - Array of { foodId, quantity, unitPrice, subtotal }
    * @returns {Promise<void>}
    */
-  createMany: async (orderId, items) => {
+  createMany: async (orderId, items, connection = null) => {
     if (!items || items.length === 0) return;
 
+    const db = connection || pool;
     const placeholders = items.map(() => '(?, ?, ?, ?, ?)').join(', ');
     const params = [];
 
@@ -21,7 +22,7 @@ const OrderItem = {
       params.push(orderId, item.foodId, item.quantity, item.unitPrice, item.subtotal);
     });
 
-    await pool.execute(
+    await db.execute(
       `INSERT INTO order_items (order_id, food_id, quantity, unit_price, subtotal)
        VALUES ${placeholders}`,
       params

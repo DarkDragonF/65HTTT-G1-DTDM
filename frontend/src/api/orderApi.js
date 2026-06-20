@@ -1,7 +1,14 @@
 import axiosInstance from './axiosInstance';
 
+/**
+ * API requests for order operations.
+ */
 export const placeOrder = (data) => {
   return axiosInstance.post('/orders', data);
+};
+
+export const placeOrderFromCart = (canteenId, data) => {
+  return axiosInstance.post(`/orders/from-cart/${canteenId}`, data);
 };
 
 export const getMyOrders = () => {
@@ -24,6 +31,6 @@ export const updateOrderStatus = (id, status, cancelReason = null) => {
   return axiosInstance.patch(`/orders/${id}/status`, { status, cancelReason });
 };
 
-export const cancelOrder = (id) => {
-  return axiosInstance.patch(`/orders/${id}/cancel`);
+export const cancelOrder = (id, reason = null) => {
+  return axiosInstance.patch(`/orders/${id}/cancel`, { reason });
 };

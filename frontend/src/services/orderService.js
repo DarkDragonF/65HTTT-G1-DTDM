@@ -1,8 +1,16 @@
 import * as orderApi from '../api/orderApi';
 
+/**
+ * Service wrapper for order actions.
+ */
 export const orderService = {
   placeOrder: async (data) => {
     const response = await orderApi.placeOrder(data);
+    return response.data;
+  },
+
+  placeOrderFromCart: async (canteenId, data) => {
+    const response = await orderApi.placeOrderFromCart(canteenId, data);
     return response.data;
   },
 
@@ -31,8 +39,8 @@ export const orderService = {
     return response.data;
   },
 
-  cancelOrder: async (id) => {
-    const response = await orderApi.cancelOrder(id);
+  cancelOrder: async (id, reason = null) => {
+    const response = await orderApi.cancelOrder(id, reason);
     return response.data;
   },
 };

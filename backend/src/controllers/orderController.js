@@ -58,4 +58,39 @@ const getRevenueStats = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createOrder, getCanteenOrders, getMyOrders, getOrderDetails, updateOrderStatus, cancelOrder, getRevenueStats };
+/** @route POST /api/orders/from-cart/:canteenId */
+const createOrderFromCart = async (req, res, next) => {
+  try {
+    const order = await orderService.createOrderFromCart(req.user.id, parseInt(req.params.canteenId), req.body);
+    res.status(201).json({ success: true, message: 'Order placed successfully from cart', data: { order } });
+  } catch (error) { next(error); }
+};
+
+/** @route GET /api/orders/delivery/available */
+const getAvailableDeliveryOrders = async (req, res, next) => {
+  try {
+    const result = await orderService.getAvailableDeliveryOrders(req.query);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) { next(error); }
+};
+
+/** @route GET /api/orders/delivery/my */
+const getMyDeliveryTasks = async (req, res, next) => {
+  try {
+    const result = await orderService.getMyDeliveryTasks(req.user.id, req.query);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) { next(error); }
+};
+
+module.exports = { 
+  createOrder, 
+  getCanteenOrders, 
+  getMyOrders, 
+  getOrderDetails, 
+  updateOrderStatus, 
+  cancelOrder, 
+  getRevenueStats,
+  createOrderFromCart,
+  getAvailableDeliveryOrders,
+  getMyDeliveryTasks
+};
