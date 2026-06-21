@@ -4,6 +4,7 @@ const Otp = require('../models/Otp');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
 const { AppError } = require('../middlewares/errorHandler');
+const emailService = require('./emailService');
 
 /**
  * Generates a random 6-digit OTP code.
@@ -56,24 +57,9 @@ const authService = {
       expiresAt,
     });
 
-    // 5. Mock send email (console log for development)
+    // 5. Send email via ZeptoMail (with fallback to mock logger)
     console.log(`===== OTP for ${email}: ${otp} =====`);
-
-    // TODO: Integrate ZeptoMail for production email sending
-    // ─────────────────────────────────────────────────────
-    // const { SendMailClient } = require('zeptomail');
-    // const url = 'api.zeptomail.com/';
-    // const token = 'YOUR_ZEPTOMAIL_TOKEN';
-    // const client = new SendMailClient({ url, token });
-    //
-    // await client.sendMail({
-    //   from: { address: 'noreply@tlufood.com', name: 'TLU Food' },
-    //   to: [{ email_address: { address: email, name: fullName } }],
-    //   subject: 'Verify Your TLU Food Account',
-    //   htmlbody: `<p>Your OTP code is: <strong>${otp}</strong></p>
-    //              <p>This code expires in 5 minutes.</p>`,
-    // });
-    // ─────────────────────────────────────────────────────
+    await emailService.sendVerificationOtp(email, fullName, otp);
 
     // 6. Return user data (without password)
     const user = await User.findById(userId);
@@ -137,8 +123,9 @@ const authService = {
       expiresAt,
     });
 
-    // 4. Log OTP to console
+    // 4. Send email via ZeptoMail (with fallback to mock logger)
     console.log(`===== OTP for ${email}: ${otp} =====`);
+    await emailService.sendVerificationOtp(email, user.full_name, otp);
 
     return { message: 'OTP sent successfully' };
   },

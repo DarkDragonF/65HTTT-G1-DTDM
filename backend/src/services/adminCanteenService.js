@@ -51,15 +51,16 @@ const adminCanteenService = {
     // 1. Update canteen status in local database
     await pool.execute('UPDATE canteens SET status = "active" WHERE id = ?', [canteenId]);
 
-    // 2. Fetch owner email to sync with Zoho CRM
+    // 2. Fetch owner email and name to sync with Zoho CRM and Sign
     const owner = await User.findById(canteen.owner_id);
     const ownerEmail = owner ? owner.email : 'unknown@tlufood.com';
+    const ownerName = owner ? owner.full_name : 'Canteen Owner';
 
     // Zoho CRM Partner Sync
     await zohoCrmService.syncPartnerRecord(canteenId, canteen.name, ownerEmail);
 
     // Zoho Sign Contract Generation
-    const contractDetails = await zohoCrmService.triggerZohoSignContract(canteenId, canteen.name);
+    const contractDetails = await zohoCrmService.triggerZohoSignContract(canteenId, canteen.name, ownerEmail, ownerName);
     
     // Save generated contract to DB
     const contractId = await Contract.create({
