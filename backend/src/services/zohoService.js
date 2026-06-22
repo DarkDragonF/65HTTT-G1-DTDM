@@ -16,9 +16,12 @@ const zohoService = {
     const refreshToken = await getCredential('ZOHO_REFRESH_TOKEN');
     const accountsUrl = process.env.ZOHO_ACCOUNTS_URL || 'https://accounts.zoho.com';
 
-    // If client ID / client secret is placeholder/missing or no refresh token, return null (mock mode)
+    // If client ID / client secret is placeholder/missing or no refresh token, return null (mock mode).
+    // Note: Scopes are bound to the refresh_token at the time of code generation in the Developer Console.
+    // Ensure you request: ZohoCRM.modules.ALL, ZohoSign.documents.ALL, Desk.tickets.ALL, ZohoCampaigns.contact.ALL, etc.
     if (!clientId || !clientSecret || !refreshToken || 
-        clientId.includes('secret_abc123') || clientSecret.includes('secret_xyz789')) {
+        clientId.includes('secret_abc123') || clientSecret.includes('secret_xyz789') ||
+        clientId.includes('your_') || clientSecret.includes('your_') || refreshToken.includes('your_')) {
       console.log('[Zoho Service] OAuth credentials not fully configured. Operating in MOCK mode.');
       return null;
     }

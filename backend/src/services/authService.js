@@ -92,6 +92,14 @@ const authService = {
     // 4. Update user verification status
     await User.updateVerificationStatus(user.id, true);
 
+    // 5. Subscribe user to Zoho Campaigns newsletter list
+    try {
+      const campaignsService = require('./campaignsService');
+      await campaignsService.subscribeUserToNewsletter(user.email, user.full_name);
+    } catch (err) {
+      console.error('[authService] Failed to auto-subscribe user to Campaigns:', err.message);
+    }
+
     return { message: 'Email verified successfully' };
   },
 

@@ -17,6 +17,7 @@ import Orders from './pages/student/Orders';
 import OrderDetail from './pages/student/OrderDetail';
 import Profile from './pages/student/Profile';
 import CustomerSupport from './pages/student/CustomerSupport';
+import Feedback from './pages/student/Feedback';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -33,8 +34,10 @@ import DeliveryProfile from './pages/delivery/DeliveryProfile';
 
 // Context Providers
 import { CartProvider } from './contexts/CartContext';
+import { useSalesIQ } from './hooks/useSalesIQ';
 
 function App() {
+  useSalesIQ();
   return (
     <CartProvider>
       <Routes>
@@ -99,6 +102,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedRoute>
+              <Feedback />
             </ProtectedRoute>
           }
         />
