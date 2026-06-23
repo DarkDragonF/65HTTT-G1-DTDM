@@ -4,15 +4,14 @@ import {
   getSystemMetrics, 
   getPlatformSettingsList, 
   updatePlatformSetting, 
-  getAuditLogsList,
-  getFeedbackList
+  getAuditLogsList
 } from '../../api/adminApi';
 import { useNotification } from '../../hooks/useNotification';
 import './Reports.css';
 
 const Reports = () => {
   const { showToast } = useNotification();
-  // Tabs: 'health', 'settings', 'audit', 'feedback'
+  // Tabs: 'health', 'settings', 'audit'
   const [activeTab, setActiveTab] = useState('health');
 
   // Health State
@@ -33,9 +32,6 @@ const Reports = () => {
   const [actionSearch, setActionSearch] = useState('');
   const [targetTypeFilter, setTargetTypeFilter] = useState('');
 
-  // Feedback State
-  const [feedbackList, setFeedbackList] = useState([]);
-  const [feedbackLoading, setFeedbackLoading] = useState(true);
 
 
   // 1. Load Health & Metrics
@@ -86,19 +82,6 @@ const Reports = () => {
     }
   }, [logPage, logLimit, actionSearch, targetTypeFilter]);
 
-  // 4. Load Feedback
-  const loadFeedback = useCallback(async () => {
-    setFeedbackLoading(true);
-    try {
-      const res = await getFeedbackList();
-      setFeedbackList(res.data?.data || []);
-    } catch (error) {
-      console.error('Failed to load feedback logs:', error);
-    } finally {
-      setFeedbackLoading(false);
-    }
-  }, []);
-
   // Load appropriate data on tab changes / filters
   useEffect(() => {
     if (activeTab === 'health') {
@@ -107,10 +90,8 @@ const Reports = () => {
       loadSettings();
     } else if (activeTab === 'audit') {
       loadAuditLogs();
-    } else if (activeTab === 'feedback') {
-      loadFeedback();
     }
-  }, [activeTab, loadHealthAndMetrics, loadSettings, loadAuditLogs, loadFeedback]);
+  }, [activeTab, loadHealthAndMetrics, loadSettings, loadAuditLogs]);
 
 
   // Handle setting updates
@@ -156,12 +137,7 @@ const Reports = () => {
         >
           📜 Administrative Audit Trail
         </button>
-        <button 
-          className={`tab-nav-btn ${activeTab === 'feedback' ? 'active' : ''}`}
-          onClick={() => setActiveTab('feedback')}
-        >
-          📝 Customer Feedback
-        </button>
+
       </div>
 
 
@@ -442,70 +418,7 @@ const Reports = () => {
           </div>
         )}
 
-        {/* Tab 4: Customer Feedback */}
-        {activeTab === 'feedback' && (
-          <div className="feedback-tab-view animate-fade-in">
-            {feedbackLoading ? (
-              <div className="admin-loading-container">
-                <div className="admin-spinner"></div>
-                <p>Loading customer reviews and feedback logs...</p>
-              </div>
-            ) : feedbackList.length === 0 ? (
-              <div className="no-data-msg">
-                <p>No customer feedback has been submitted yet.</p>
-              </div>
-            ) : (
-              <div className="feedback-reports-container">
-                <div className="admin-table-wrapper">
-                  <table className="admin-data-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: '180px' }}>Date & Time</th>
-                        <th style={{ width: '150px' }}>Canteen</th>
-                        <th style={{ width: '120px' }}>Rating</th>
-                        <th>Comments & Suggestions</th>
-                        <th style={{ width: '220px' }}>User Email</th>
-                        <th style={{ width: '120px' }}>Source</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {feedbackList.map((item) => (
-                        <tr key={item.id}>
-                          <td>
-                            <span className="feedback-date">
-                              {new Date(item.created_at).toLocaleString()}
-                            </span>
-                          </td>
-                          <td>
-                            <strong>{item.canteen_name}</strong>
-                          </td>
-                          <td>
-                            <div className="feedback-rating-display">
-                              {'★'.repeat(item.rating)}{'☆'.repeat(5 - item.rating)}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="feedback-comments-text">
-                              {item.comments}
-                            </div>
-                          </td>
-                          <td>
-                            <span className="feedback-email">{item.user_email || 'Anonymous'}</span>
-                          </td>
-                          <td>
-                            <span className={`source-badge ${item.source}`}>
-                              {item.source === 'zoho_forms' ? 'Zoho Forms' : 'Direct'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+
 
       </div>
 

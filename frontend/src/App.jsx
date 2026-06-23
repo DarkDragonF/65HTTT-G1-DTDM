@@ -26,6 +26,8 @@ import Users from './pages/admin/Users';
 import Canteens from './pages/admin/Canteens';
 import AdminSupport from './pages/admin/AdminSupport';
 import Reports from './pages/admin/Reports';
+import AdminFeedback from './pages/admin/Feedback';
+
 
 // Delivery Pages
 import DeliveryLayout from './layouts/DeliveryLayout';
@@ -145,6 +147,7 @@ function App() {
           <Route path="users" element={<Users />} />
           <Route path="canteens" element={<Canteens />} />
           <Route path="support" element={<AdminSupport />} />
+          <Route path="feedback" element={<AdminFeedback />} />
           <Route path="reports" element={<Reports />} />
         </Route>
 

@@ -42,6 +42,10 @@ const AdminLayout = () => {
             <span className="nav-item-icon">🎫</span>
             Helpdesk Tickets
           </NavLink>
+          <NavLink to="/admin/feedback" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
+            <span className="nav-item-icon">📝</span>
+            Customer Feedback
+          </NavLink>
           <NavLink to="/admin/reports" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-item-icon">⚙️</span>
             Reports & Settings
