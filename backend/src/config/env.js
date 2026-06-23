@@ -6,7 +6,6 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
  * The server will refuse to start if any of these are missing.
  */
 const requiredVars = [
-  'PORT',
   'DB_HOST',
   'DB_USER',
   'DB_PASSWORD',
