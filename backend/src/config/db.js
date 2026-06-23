@@ -6,18 +6,26 @@ const { DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT } = require('./env');
  * MySQL connection pool using promise-based API.
  * Connections are lazily created and reused across requests.
  */
-const pool = mysql.createPool({
-  host: DB_HOST,
+const poolConfig = {
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
-  port: DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-});
+};
+
+// If DB_HOST starts with '/' it is treated as a Unix socket path (e.g. for Google Cloud SQL)
+if (DB_HOST && DB_HOST.startsWith('/')) {
+  poolConfig.socketPath = DB_HOST;
+} else {
+  poolConfig.host = DB_HOST;
+  poolConfig.port = DB_PORT;
+}
+
+const pool = mysql.createPool(poolConfig);
 
 /**
  * Tests the database connection by executing a simple query.
