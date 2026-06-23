@@ -8,7 +8,7 @@ export const CartContext = createContext(null);
  * Global Cart Provider that tracks active carts, quantities, and exposes cart action triggers.
  */
 export const CartProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [carts, setCarts] = useState([]);
   const [activeCart, setActiveCart] = useState(null);
   const [cartCount, setCartCount] = useState(0);
@@ -18,7 +18,7 @@ export const CartProvider = ({ children }) => {
    * Refreshes active carts summary list and total count badge.
    */
   const refreshCarts = useCallback(async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user || !['student', 'lecturer'].includes(user.role)) {
       setCarts([]);
       setCartCount(0);
       return;
@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       console.error('Failed to fetch carts summary:', error);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   useEffect(() => {
     refreshCarts();

@@ -40,27 +40,27 @@ router.get('/:id', canteenController.getCanteen);
  * @desc    Update canteen info
  * @access  Private (canteen_owner: own, admin: all)
  */
-router.put('/:id', verifyToken, requireRole('canteen_owner', 'admin'), verifyCanteenOwnership, validate(updateCanteenSchema), canteenController.updateCanteen);
+router.put('/:id', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyCanteenOwnership, validate(updateCanteenSchema), canteenController.updateCanteen);
 
 /**
  * @route   PATCH /api/canteens/:id/status
  * @desc    Update canteen status
  * @access  Private (admin only)
  */
-router.patch('/:id/status', verifyToken, requireRole('admin'), validate(updateStatusSchema), canteenController.updateCanteenStatus);
+router.patch('/:id/status', verifyToken, requireRole('admin', 'super_admin'), validate(updateStatusSchema), canteenController.updateCanteenStatus);
 
 /**
  * @route   POST /api/canteens/:id/logo
  * @desc    Upload canteen logo
  * @access  Private (canteen_owner: own, admin: all)
  */
-router.post('/:id/logo', verifyToken, requireRole('canteen_owner', 'admin'), verifyCanteenOwnership, ...uploadTo('logos'), canteenController.uploadLogo);
+router.post('/:id/logo', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyCanteenOwnership, ...uploadTo('logos'), canteenController.uploadLogo);
 
 /**
  * @route   DELETE /api/canteens/:id
  * @desc    Delete canteen
  * @access  Private (admin only)
  */
-router.delete('/:id', verifyToken, requireRole('admin'), canteenController.deleteCanteen);
+router.delete('/:id', verifyToken, requireRole('admin', 'super_admin'), canteenController.deleteCanteen);
 
 module.exports = router;

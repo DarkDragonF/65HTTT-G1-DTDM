@@ -23,6 +23,6 @@ router.post('/webhook', feedbackController.receiveZohoWebhook);
  * @desc    Get all feedback records for reporting
  * @access  Private (Admin only)
  */
-router.get('/', verifyToken, requireRole('admin'), feedbackController.getAllFeedback);
+router.get('/', verifyToken, requireRole('admin', 'super_admin'), feedbackController.getAllFeedback);
 
 module.exports = router;

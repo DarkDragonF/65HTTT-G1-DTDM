@@ -25,14 +25,14 @@ router.post('/from-cart/:canteenId', verifyToken, requireRole('student', 'lectur
  * @desc    Get all orders ready for delivery (available tasks)
  * @access  Private (delivery_staff, admin)
  */
-router.get('/delivery/available', verifyToken, requireRole('delivery_staff', 'admin'), orderController.getAvailableDeliveryOrders);
+router.get('/delivery/available', verifyToken, requireRole('delivery_staff', 'admin', 'super_admin'), orderController.getAvailableDeliveryOrders);
 
 /**
  * @route   GET /api/orders/delivery/my
  * @desc    Get delivery tasks assigned to the current staff member
  * @access  Private (delivery_staff, admin)
  */
-router.get('/delivery/my', verifyToken, requireRole('delivery_staff', 'admin'), orderController.getMyDeliveryTasks);
+router.get('/delivery/my', verifyToken, requireRole('delivery_staff', 'admin', 'super_admin'), orderController.getMyDeliveryTasks);
 
 /**
  * @route   GET /api/orders/my
@@ -46,14 +46,14 @@ router.get('/my', verifyToken, orderController.getMyOrders);
  * @desc    Get orders for a canteen
  * @access  Private (canteen_owner: own, admin)
  */
-router.get('/canteen/:canteenId', verifyToken, requireRole('canteen_owner', 'admin'), verifyCanteenOwnership, orderController.getCanteenOrders);
+router.get('/canteen/:canteenId', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyCanteenOwnership, orderController.getCanteenOrders);
 
 /**
  * @route   GET /api/orders/canteen/:canteenId/stats
  * @desc    Get revenue statistics for a canteen
  * @access  Private (canteen_owner: own, admin)
  */
-router.get('/canteen/:canteenId/stats', verifyToken, requireRole('canteen_owner', 'admin'), verifyCanteenOwnership, orderController.getRevenueStats);
+router.get('/canteen/:canteenId/stats', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyCanteenOwnership, orderController.getRevenueStats);
 
 /**
  * @route   GET /api/orders/:id
@@ -67,7 +67,7 @@ router.get('/:id', verifyToken, verifyOrderOwnership, orderController.getOrderDe
  * @desc    Update order status
  * @access  Private (canteen_owner: own, delivery_staff, admin)
  */
-router.patch('/:id/status', verifyToken, requireRole('canteen_owner', 'delivery_staff', 'admin'), verifyOrderOwnership, validate(updateOrderStatusSchema), orderController.updateOrderStatus);
+router.patch('/:id/status', verifyToken, requireRole('canteen_owner', 'delivery_staff', 'admin', 'super_admin'), verifyOrderOwnership, validate(updateOrderStatusSchema), orderController.updateOrderStatus);
 
 /**
  * @route   PATCH /api/orders/:id/cancel

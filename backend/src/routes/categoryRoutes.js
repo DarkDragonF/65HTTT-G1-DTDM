@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
  * @desc    Create food category
  * @access  Private (admin only)
  */
-router.post('/', verifyToken, requireRole('admin'), async (req, res, next) => {
+router.post('/', verifyToken, requireRole('admin', 'super_admin'), async (req, res, next) => {
   try {
     const { name, description, icon, sortOrder } = req.body;
     if (!name) throw new AppError('Category name is required', 400);
@@ -38,7 +38,7 @@ router.post('/', verifyToken, requireRole('admin'), async (req, res, next) => {
  * @desc    Update food category
  * @access  Private (admin only)
  */
-router.put('/:id', verifyToken, requireRole('admin'), async (req, res, next) => {
+router.put('/:id', verifyToken, requireRole('admin', 'super_admin'), async (req, res, next) => {
   try {
     const category = await FoodCategory.findById(req.params.id);
     if (!category) throw new AppError('Category not found', 404);
@@ -54,7 +54,7 @@ router.put('/:id', verifyToken, requireRole('admin'), async (req, res, next) => 
  * @desc    Delete food category
  * @access  Private (admin only)
  */
-router.delete('/:id', verifyToken, requireRole('admin'), async (req, res, next) => {
+router.delete('/:id', verifyToken, requireRole('admin', 'super_admin'), async (req, res, next) => {
   try {
     const category = await FoodCategory.findById(req.params.id);
     if (!category) throw new AppError('Category not found', 404);

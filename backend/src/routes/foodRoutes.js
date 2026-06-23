@@ -40,7 +40,7 @@ router.get('/:id', foodController.getFood);
  * @desc    Update food item
  * @access  Private (canteen_owner: own, admin: all)
  */
-router.put('/:id', verifyToken, requireRole('canteen_owner', 'admin'), verifyFoodOwnership, validate(updateFoodSchema), foodController.updateFood);
+router.put('/:id', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyFoodOwnership, validate(updateFoodSchema), foodController.updateFood);
 
 /**
  * @route   PATCH /api/foods/:id/availability
@@ -54,13 +54,13 @@ router.patch('/:id/availability', verifyToken, requireRole('canteen_owner'), ver
  * @desc    Upload food image
  * @access  Private (canteen_owner: own, admin: all)
  */
-router.post('/:id/image', verifyToken, requireRole('canteen_owner', 'admin'), verifyFoodOwnership, ...uploadTo('foods'), foodController.uploadFoodImage);
+router.post('/:id/image', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyFoodOwnership, ...uploadTo('foods'), foodController.uploadFoodImage);
 
 /**
  * @route   DELETE /api/foods/:id
  * @desc    Soft-delete food item
  * @access  Private (canteen_owner: own, admin: all)
  */
-router.delete('/:id', verifyToken, requireRole('canteen_owner', 'admin'), verifyFoodOwnership, foodController.deleteFood);
+router.delete('/:id', verifyToken, requireRole('canteen_owner', 'admin', 'super_admin'), verifyFoodOwnership, foodController.deleteFood);
 
 module.exports = router;
