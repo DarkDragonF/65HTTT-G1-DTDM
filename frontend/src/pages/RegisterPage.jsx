@@ -82,8 +82,8 @@ const RegisterPage = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-  const isCaptchaConfigured = siteKey && siteKey !== 'placeholder' && siteKey.trim() !== '';
+  const siteKey = '6Lfj3i4tAAAAAOkI_vDADyNdc5UpNGVUUPvlKD-e';
+  const isCaptchaConfigured = true;
 
   useEffect(() => {
     if (!isCaptchaConfigured) return;
