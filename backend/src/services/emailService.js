@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const zohoVaultService = require('./zohoVaultService');
 
 async function getCredential(key) {
@@ -11,62 +12,67 @@ async function getCredential(key) {
   }
 }
 
-const emailService = {
-  sendVerificationOtp: async (email, fullName, otp) => {
-    const token = await getCredential('ZEPTOMAIL_TOKEN');
-    const apiUrl = process.env.ZEPTOMAIL_API_URL || 'https://api.zeptomail.com/v1.1/email';
-    const fromAddress = process.env.ZEPTOMAIL_FROM_ADDRESS || 'noreply@tlufood.com';
-    const fromName = process.env.ZEPTOMAIL_FROM_NAME || 'TLU Food';
+// Nodemailer transporter instance, initialized lazily on first send
+let transporter = null;
 
-    // If no token or token is a placeholder, log and simulate success
-    if (!token || token.includes('YOUR_ZEPTOMAIL_TOKEN') || token === 'placeholder') {
-      console.warn(`[emailService] ZeptoMail token not configured. MOCK OTP SENDING: Send OTP ${otp} to ${email}`);
+const getTransporter = async () => {
+  if (transporter) return transporter;
+
+  const user = await getCredential('dragon474@zohomail.com');
+  const pass = await getCredential('RwatDJwim1ha');
+  const host = process.env.ZOHO_MAIL_HOST || 'smtp.zoho.com';
+  const port = Number(process.env.ZOHO_MAIL_PORT) || 465;
+
+  if (!user || !pass || user === 'placeholder' || pass === 'placeholder') {
+    return null;
+  }
+
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // true for 465, false for other ports (like 587 with STARTTLS)
+    auth: {
+      user,
+      pass,
+    },
+  });
+
+  return transporter;
+};
+
+const emailService = {
+  /**
+   * Sends an OTP verification email to a user.
+   * Falls back to a mock logger if credentials are not configured.
+   */
+  sendVerificationOtp: async (email, fullName, otp) => {
+    const user = await getCredential('ZOHO_MAIL_USER');
+    const mailTransporter = await getTransporter();
+
+    // Fallback if not configured
+    if (!mailTransporter || !user) {
+      console.warn(`[emailService] Zoho Mail SMTP credentials not configured. MOCK OTP SENDING: Send OTP ${otp} to ${email}`);
       return { success: true, mock: true };
     }
 
     try {
-      console.log(`[emailService] Sending real OTP verification email to ${email} via ZeptoMail...`);
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Zoho-enczauthtoken ${token}`
-        },
-        body: JSON.stringify({
-          from: {
-            address: fromAddress,
-            name: fromName
-          },
-          to: [
-            {
-              email_address: {
-                address: email,
-                name: fullName || 'User'
-              }
-            }
-          ],
-          subject: 'Verify Your TLU Food Account',
-          htmlbody: `<p>Hello ${fullName || 'User'},</p>
-                     <p>Your OTP code is: <strong>${otp}</strong></p>
-                     <p>This code expires in 5 minutes.</p>
-                     <br/>
-                     <p>Best regards,</p>
-                     <p>TLU Food Team</p>`
-        })
+      console.log(`[emailService] Sending real OTP verification email to ${email} via Zoho Mail SMTP...`);
+      const info = await mailTransporter.sendMail({
+        from: `"TLU Food" <${user}>`,
+        to: email,
+        subject: 'Verify Your TLU Food Account',
+        html: `<p>Hello ${fullName || 'User'},</p>
+               <p>Your OTP code is: <strong>${otp}</strong></p>
+               <p>This code expires in 5 minutes.</p>
+               <br/>
+               <p>Best regards,</p>
+               <p>TLU Food Team</p>`,
       });
 
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`ZeptoMail responded with status ${response.status}: ${errText}`);
-      }
-
-      const data = await response.json();
-      console.log(`[emailService] Email sent successfully via ZeptoMail:`, JSON.stringify(data));
-      return { success: true, messageId: data.message_id || 'sent' };
+      console.log(`[emailService] Email sent successfully via Zoho Mail SMTP:`, info.messageId);
+      return { success: true, messageId: info.messageId };
     } catch (error) {
-      console.error(`[emailService] Failed to send email via ZeptoMail:`, error.message);
-      // Degrade gracefully: log and return mock-success state, but set error flag
+      console.error(`[emailService] Failed to send email via Zoho Mail SMTP:`, error.message);
       return { success: false, error: error.message };
     }
   }
