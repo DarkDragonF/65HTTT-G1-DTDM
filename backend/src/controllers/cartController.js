@@ -1,8 +1,6 @@
 const cartService = require('../services/cartService');
 
-const getAuthenticatedUserId = (req) => req.user?.id || req.body?.user_id;
-
-const isPositiveInteger = (value) => Number.isInteger(Number(value)) && Number(value) > 0;
+const getAuthenticatedUserId = (req) => req.user?.id || req.query?.user_id || req.body?.user_id;
 
 const handleError = (res, error) => {
   console.error(error);
