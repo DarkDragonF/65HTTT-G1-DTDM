@@ -14,7 +14,7 @@ const startServer = async () => {
     // Ensure upload directories exist
     ensureUploadDirs();
 
-    const server = app.listen(PORT || 5000, () => {
+    const server = app.listen(PORT || 5000, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 API base URL: http://localhost:${PORT}/api`);
       console.log(`🔐 Auth:       /api/auth`);
