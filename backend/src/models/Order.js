@@ -310,11 +310,15 @@ const Order = {
     const [periodRows] = await pool.execute(periodQuery, [canteenId]);
 
     return {
-      totalRevenue: summaryRows[0].totalRevenue,
-      totalOrders: summaryRows[0].totalOrders,
-      completedOrders: summaryRows[0].completedOrders,
-      cancelledOrders: summaryRows[0].cancelledOrders,
-      revenueByPeriod: periodRows,
+      totalRevenue: Number(summaryRows[0].totalRevenue || 0),
+      totalOrders: Number(summaryRows[0].totalOrders || 0),
+      completedOrders: Number(summaryRows[0].completedOrders || 0),
+      cancelledOrders: Number(summaryRows[0].cancelledOrders || 0),
+      revenueByPeriod: periodRows.map(row => ({
+        ...row,
+        revenue: Number(row.revenue || 0),
+        orderCount: Number(row.orderCount || 0)
+      })),
     };
   },
 };

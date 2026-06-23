@@ -44,12 +44,15 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(amount || 0));
   };
 
   const getCompletionRate = () => {
-    if (!stats || stats.totalOrders === 0) return 0;
-    return Math.round((stats.completedOrders / stats.totalOrders) * 100);
+    if (!stats) return 0;
+    const total = Number(stats.totalOrders || 0);
+    const completed = Number(stats.completedOrders || 0);
+    if (total === 0) return 0;
+    return Math.round((completed / total) * 100);
   };
 
   if (isLoading || !stats) {
