@@ -1,96 +1,95 @@
 const orderService = require('../services/orderService');
 
-/** @route POST /api/orders */
-const createOrder = async (req, res, next) => {
-  try {
-    const order = await orderService.createOrder(req.user.id, req.body);
-    res.status(201).json({ success: true, message: 'Order placed successfully', data: { order } });
-  } catch (error) { next(error); }
+const getAuthenticatedUserId = (req) => req.user?.id || req.body?.user_id;
+
+const isPositiveInteger = (value) => Number.isInteger(Number(value)) && Number(value) > 0;
+
+const handleError = (res, error) => {
+  console.error(error);
+  const statusCode = error.statusCode || 500;
+  const message = error.statusCode ? error.message : 'Internal server error';
+
+  return res.status(statusCode).json({
+    success: false,
+    message,
+  });
 };
 
-/** @route GET /api/orders/canteen/:canteenId */
-const getCanteenOrders = async (req, res, next) => {
+const createOrder = async (req, res) => {
   try {
-    const result = await orderService.getCanteenOrders(parseInt(req.params.canteenId), req.query);
-    res.status(200).json({ success: true, data: result });
-  } catch (error) { next(error); }
+    const userId = getAuthenticatedUserId(req);
+
+    if (!isPositiveInteger(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid user_id is required',
+      });
+    }
+
+    const order = await orderService.createOrder(Number(userId));
+
+    return res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      data: order,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
 };
 
-/** @route GET /api/orders/my */
-const getMyOrders = async (req, res, next) => {
+const updateOrderStatus = async (req, res) => {
   try {
-    const result = await orderService.getMyOrders(req.user.id, req.query);
-    res.status(200).json({ success: true, data: result });
-  } catch (error) { next(error); }
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!isPositiveInteger(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid order id is required',
+      });
+    }
+
+    if (!orderService.VALID_ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Status must be one of: ${orderService.VALID_ORDER_STATUSES.join(', ')}`,
+      });
+    }
+
+    const order = await orderService.updateOrderStatus({
+      orderId: Number(id),
+      status,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order status updated successfully',
+      data: order,
+    });
+  } catch (error) {
+    return handleError(res, error);
+  }
 };
 
-/** @route GET /api/orders/:id */
-const getOrderDetails = async (req, res, next) => {
+const getOrder = async (req, res) => {
   try {
-    const order = await orderService.getOrderDetails(req.params.id);
-    res.status(200).json({ success: true, data: { order } });
-  } catch (error) { next(error); }
+    const { id } = req.params;
+
+    if (!isPositiveInteger(id)) {
+      return res.status(400).json({ success: false, message: 'Valid order id is required' });
+    }
+
+    const order = await orderService.getOrder(Number(id));
+
+    return res.status(200).json({ success: true, data: order });
+  } catch (error) {
+    return handleError(res, error);
+  }
 };
 
-/** @route PATCH /api/orders/:id/status */
-const updateOrderStatus = async (req, res, next) => {
-  try {
-    const order = await orderService.updateOrderStatus(
-      req.params.id, req.body.status, req.user.id, req.body.cancelReason
-    );
-    res.status(200).json({ success: true, message: `Order status updated to ${req.body.status}`, data: { order } });
-  } catch (error) { next(error); }
-};
-
-/** @route PATCH /api/orders/:id/cancel */
-const cancelOrder = async (req, res, next) => {
-  try {
-    const order = await orderService.cancelOrder(req.params.id, req.user.id, req.body.reason);
-    res.status(200).json({ success: true, message: 'Order cancelled', data: { order } });
-  } catch (error) { next(error); }
-};
-
-/** @route GET /api/orders/canteen/:canteenId/stats */
-const getRevenueStats = async (req, res, next) => {
-  try {
-    const stats = await orderService.getRevenueStats(parseInt(req.params.canteenId), req.query.period || 'daily');
-    res.status(200).json({ success: true, data: { stats } });
-  } catch (error) { next(error); }
-};
-
-/** @route POST /api/orders/from-cart/:canteenId */
-const createOrderFromCart = async (req, res, next) => {
-  try {
-    const order = await orderService.createOrderFromCart(req.user.id, parseInt(req.params.canteenId), req.body);
-    res.status(201).json({ success: true, message: 'Order placed successfully from cart', data: { order } });
-  } catch (error) { next(error); }
-};
-
-/** @route GET /api/orders/delivery/available */
-const getAvailableDeliveryOrders = async (req, res, next) => {
-  try {
-    const result = await orderService.getAvailableDeliveryOrders(req.query);
-    res.status(200).json({ success: true, data: result });
-  } catch (error) { next(error); }
-};
-
-/** @route GET /api/orders/delivery/my */
-const getMyDeliveryTasks = async (req, res, next) => {
-  try {
-    const result = await orderService.getMyDeliveryTasks(req.user.id, req.query);
-    res.status(200).json({ success: true, data: result });
-  } catch (error) { next(error); }
-};
-
-module.exports = { 
-  createOrder, 
-  getCanteenOrders, 
-  getMyOrders, 
-  getOrderDetails, 
-  updateOrderStatus, 
-  cancelOrder, 
-  getRevenueStats,
-  createOrderFromCart,
-  getAvailableDeliveryOrders,
-  getMyDeliveryTasks
+module.exports = {
+  createOrder,
+  updateOrderStatus,
+  getOrder,
 };

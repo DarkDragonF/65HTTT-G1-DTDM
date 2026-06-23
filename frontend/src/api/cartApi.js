@@ -1,28 +1,22 @@
-import axiosInstance from './axiosInstance';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
-/**
- * API requests for cart operations.
- */
-export const addToCart = (data) => {
-  return axiosInstance.post('/cart/add', data);
-};
+export async function getCart(userId) {
+	const url = `${API_BASE}/api/cart${userId ? `?user_id=${userId}` : ''}`;
+	const res = await fetch(url, {
+		credentials: 'include',
+	});
+	return res.json();
+}
 
-export const getMyCarts = () => {
-  return axiosInstance.get('/cart');
-};
+export async function addToCart({ userId, foodId, quantity }) {
+	const url = `${API_BASE}/api/cart`;
+	const res = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify({ user_id: userId, food_id: foodId, quantity }),
+	});
+	return res.json();
+}
 
-export const getCartDetails = (canteenId) => {
-  return axiosInstance.get(`/cart/canteen/${canteenId}`);
-};
-
-export const updateCartItem = (cartItemId, quantity) => {
-  return axiosInstance.put(`/cart/item/${cartItemId}`, { quantity });
-};
-
-export const removeCartItem = (cartItemId) => {
-  return axiosInstance.delete(`/cart/item/${cartItemId}`);
-};
-
-export const clearCart = (canteenId) => {
-  return axiosInstance.delete(`/cart/canteen/${canteenId}`);
-};
+export default { getCart, addToCart };
