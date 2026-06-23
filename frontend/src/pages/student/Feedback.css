@@ -1,0 +1,123 @@
+.student-feedback {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.feedback-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.feedback-header h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+  margin-bottom: 0.5rem;
+}
+
+.feedback-header p {
+  color: var(--text-muted, #666);
+  font-size: 1.1rem;
+}
+
+.feedback-content-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.form-group-feedback {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group-feedback label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color, #444);
+}
+
+.feedback-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.feedback-input:focus {
+  border-color: var(--primary-color, #ff4757);
+  box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.15);
+}
+
+.feedback-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.star-button.active {
+  color: #ffb800;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.3);
+}
+
+.star-button:hover {
+  transform: scale(1.15);
+}
+
+.feedback-submit-btn {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--primary-color, #ff4757);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  margin-top: 1rem;
+}
+
+.feedback-submit-btn:hover {
+  background: var(--primary-hover, #e03747);
+}
+
+.feedback-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.feedback-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.zoho-iframe-container {
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+}

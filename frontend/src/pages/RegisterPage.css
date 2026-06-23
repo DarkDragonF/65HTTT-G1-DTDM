@@ -1,0 +1,116 @@
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.register-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .register-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Password Strength Indicator */
+.password-strength {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.password-strength-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.password-strength-bar {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border);
+  transition: var(--transition);
+}
+
+.password-strength-bar.active {
+  background: var(--error);
+}
+
+.password-strength-bar.active.medium {
+  background: var(--secondary);
+}
+
+.password-strength-bar.active.strong {
+  background: var(--success);
+}
+
+.password-strength-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.password-strength-label.weak {
+  color: var(--error);
+}
+
+.password-strength-label.medium {
+  color: var(--secondary);
+}
+
+.password-strength-label.strong {
+  color: var(--success);
+}
+
+/* Role Selector */
+.role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.role-selector-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.role-options {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.role-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-input);
+  border: 1.5px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.role-option:hover {
+  border-color: var(--text-muted);
+}
+
+.role-option.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.role-option input {
+  display: none;
+}
