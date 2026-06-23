@@ -117,8 +117,8 @@ View Assigned Orders
 Accept Delivery Tasks
 Start Delivery
 Complete Delivery
-View Delivery History
---
+* View Delivery History
+---
 
 ## Administrator
 
