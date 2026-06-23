@@ -6,9 +6,12 @@ const isPositiveInteger = (value) => Number.isInteger(Number(value)) && Number(v
 
 const handleError = (res, error) => {
   console.error(error);
-  return res.status(error.statusCode || 500).json({
+  const statusCode = error.statusCode || 500;
+  const message = error.statusCode ? error.message : 'Internal server error';
+
+  return res.status(statusCode).json({
     success: false,
-    message: error.message || 'Internal server error',
+    message,
   });
 };
 
