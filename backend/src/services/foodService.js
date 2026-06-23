@@ -22,6 +22,7 @@ const createFood = async (canteenId, data) => {
     price: data.price,
     quantity: data.quantity || 0,
     imageUrl: null,
+    zohoItemId: data.zohoItemId || null,
   });
 
   return await Food.findById(foodId);

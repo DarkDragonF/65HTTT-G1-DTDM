@@ -28,7 +28,7 @@ const invoiceService = {
       mock: true
     };
 
-    if (!accessToken || !orgId || orgId === 'placeholder' || orgId.includes('org_id')) {
+    if (!accessToken || !orgId || orgId === 'placeholder' || orgId.includes('org_id') || orgId.includes('organization') || orgId.includes('your_')) {
       console.log(`[Zoho Invoice] Operating in MOCK mode. Returning mock invoice: ${invoiceNumber}`);
       return mockResult;
     }
@@ -36,7 +36,7 @@ const invoiceService = {
     try {
       console.log(`[Zoho Invoice] Creating invoice in organization: ${orgId}`);
       
-      const response = await fetch(`https://invoice.zoho.com/api/v3/invoices?organization_id=${orgId}`, {
+      const response = await fetch(`https://www.zohoapis.com/invoice/v3/invoices?organization_id=${orgId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Zoho-oauthtoken ${accessToken}`,
@@ -70,7 +70,7 @@ const invoiceService = {
         return {
           success: true,
           invoiceNumber: resData.invoice.invoice_number,
-          pdfUrl: `https://invoice.zoho.com/api/v3/invoices/${invoiceId}?organization_id=${orgId}&accept=pdf`
+          pdfUrl: `https://www.zohoapis.com/invoice/v3/invoices/${invoiceId}?organization_id=${orgId}&accept=pdf`
         };
       } else {
         throw new Error(`Invalid invoice response: ${JSON.stringify(resData)}`);

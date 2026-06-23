@@ -169,7 +169,7 @@ const authService = {
     }
 
     // 4. Generate access token
-    const accessToken = generateAccessToken({
+    const accessToken = await generateAccessToken({
       id: user.id,
       email: user.email,
       role: user.role,
@@ -232,7 +232,7 @@ const authService = {
     }
 
     // 5. Generate new access token
-    const accessToken = generateAccessToken({
+    const accessToken = await generateAccessToken({
       id: user.id,
       email: user.email,
       role: user.role,

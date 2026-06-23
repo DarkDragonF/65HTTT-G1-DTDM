@@ -20,4 +20,6 @@ router.get('/audit-logs', checkPermission('view_audit_logs'), adminController.ge
 router.get('/settings', checkPermission('manage_settings'), adminController.getSettings);
 router.patch('/settings/:key', checkPermission('manage_settings'), auditLogMiddleware, validate(updateSettingSchema), adminController.updateSetting);
 
+router.post('/inventory/sync', checkPermission('manage_settings'), auditLogMiddleware, adminController.syncInventoryItems);
+
 module.exports = router;

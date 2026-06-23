@@ -55,3 +55,7 @@ export const updatePlatformSetting = (key, value) => {
 export const triggerRevenueSnapshot = (date) => {
   return axiosInstance.post('/admin/dashboard/snapshot', { date });
 };
+
+export const syncInventoryCatalog = () => {
+  return axiosInstance.post('/admin/inventory/sync');
+};

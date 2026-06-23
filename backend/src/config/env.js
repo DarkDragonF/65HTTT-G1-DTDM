@@ -19,7 +19,12 @@ const requiredVars = [
 ];
 
 // Validate that all required environment variables are defined
-const missing = requiredVars.filter((key) => !process.env[key]);
+const missing = requiredVars.filter((key) => {
+  if (key === 'JWT_ACCESS_SECRET' && process.env.ZOHO_VAULT_ID_JWT_ACCESS_SECRET) {
+    return false; // Resolved dynamically via Zoho Vault, bypass sync check
+  }
+  return !process.env[key];
+});
 if (missing.length > 0) {
   throw new Error(
     `Missing required environment variables: ${missing.join(', ')}. ` +

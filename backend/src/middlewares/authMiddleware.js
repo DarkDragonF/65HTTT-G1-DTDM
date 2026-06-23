@@ -23,7 +23,7 @@ const verifyToken = async (req, res, next) => {
       throw new AppError('Access denied. No token provided.', 401);
     }
 
-    const decoded = verifyAccessToken(token);
+    const decoded = await verifyAccessToken(token);
     req.user = decoded;
     next();
   } catch (error) {

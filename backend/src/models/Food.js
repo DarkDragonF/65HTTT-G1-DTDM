@@ -17,11 +17,11 @@ const Food = {
    * @param {string} [params.imageUrl] - Image URL
    * @returns {Promise<number>} The inserted food item's ID
    */
-  create: async ({ canteenId, categoryId, name, description, price, quantity, imageUrl }) => {
+  create: async ({ canteenId, categoryId, name, description, price, quantity, imageUrl, zohoItemId }) => {
     const [result] = await pool.execute(
-      `INSERT INTO foods (canteen_id, category_id, name, description, price, quantity, image_url)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [canteenId, categoryId, name, description || null, price, quantity || 0, imageUrl || null]
+      `INSERT INTO foods (canteen_id, category_id, name, description, price, quantity, image_url, zoho_item_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [canteenId, categoryId, name, description || null, price, quantity || 0, imageUrl || null, zohoItemId || null]
     );
     return result.insertId;
   },
@@ -182,7 +182,7 @@ const Food = {
    * @returns {Promise<void>}
    */
   update: async (id, data) => {
-    const allowedFields = ['name', 'description', 'category_id', 'price', 'quantity', 'image_url'];
+    const allowedFields = ['name', 'description', 'category_id', 'price', 'quantity', 'image_url', 'zoho_item_id'];
     const updates = [];
     const params = [];
 
@@ -193,6 +193,7 @@ const Food = {
       price: 'price',
       quantity: 'quantity',
       imageUrl: 'image_url',
+      zohoItemId: 'zoho_item_id',
     };
 
     for (const [key, value] of Object.entries(data)) {

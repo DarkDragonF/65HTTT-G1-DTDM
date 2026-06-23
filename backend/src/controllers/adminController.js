@@ -2,6 +2,7 @@ const analyticsService = require('../services/analyticsService');
 const monitoringService = require('../services/monitoringService');
 const auditService = require('../services/auditService');
 const PlatformSetting = require('../models/PlatformSetting');
+const inventoryService = require('../services/inventoryService');
 
 const adminController = {
   getSummary: async (req, res, next) => {
@@ -88,6 +89,28 @@ const adminController = {
       const { date } = req.body;
       const snapshot = await analyticsService.generateDailySnapshot(date);
       res.status(200).json({ status: 'success', message: 'Daily analytics snapshot triggered successfully', data: snapshot });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  syncInventoryItems: async (req, res, next) => {
+    try {
+      const result = await inventoryService.syncAllDatabaseItemsWithZoho();
+      
+      await auditService.logAction({
+        userId: req.user.id,
+        action: 'inventory.sync',
+        targetType: 'inventory',
+        targetId: null,
+        details: JSON.stringify(result.stats)
+      });
+
+      res.status(200).json({
+        status: 'success',
+        message: `Inventory catalog sync completed. Created: ${result.stats.created}, Linked: ${result.stats.linked}, Skipped: ${result.stats.skipped}, Errors: ${result.stats.errors}`,
+        data: result
+      });
     } catch (error) {
       next(error);
     }

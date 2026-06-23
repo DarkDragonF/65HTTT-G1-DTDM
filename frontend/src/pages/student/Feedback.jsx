@@ -10,7 +10,7 @@ const Feedback = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const formsUrl = import.meta.env.VITE_ZOHO_FORMS_URL;
-  const isMockMode = !formsUrl || formsUrl === 'placeholder' || formsUrl.includes('forms.zoho');
+  const isMockMode = !formsUrl || formsUrl === 'placeholder' || (!formsUrl.includes('forms.zoho') && !formsUrl.includes('zohopublic'));
 
   const handleSubmit = (e) => {
     e.preventDefault();

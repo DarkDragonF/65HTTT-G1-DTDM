@@ -10,6 +10,7 @@ const OrderStatusLog = require('../models/OrderStatusLog');
 const notificationService = require('./notificationService');
 const invoiceService = require('./invoiceService');
 const inventoryService = require('./inventoryService');
+const cliqService = require('./cliqService');
 const { AppError } = require('../middlewares/errorHandler');
 
 /**
@@ -108,12 +109,14 @@ const orderService = {
       notificationService.notifyOrderCreated(createdOrder).catch(console.error);
       invoiceService.generateInvoice(createdOrder).catch(console.error);
       inventoryService.syncOrder(orderId).catch(console.error);
+      cliqService.sendOrderAlert(`New Order placed: #${createdOrder.order_number} - Total: ${createdOrder.total_amount} VND`).catch(console.error);
       
       for (const item of orderItems) {
         inventoryService.syncStock(item.foodId, item.quantity).catch(console.error);
       }
       for (const food of foodsToNotify) {
         notificationService.notifyInventoryWarning(food).catch(console.error);
+        cliqService.sendInventoryWarning(`Food "${food.name}" is low on stock (${food.quantity} left)`).catch(console.error);
       }
 
       const orderItemsData = await OrderItem.findByOrderId(orderId);
@@ -225,12 +228,14 @@ const orderService = {
       notificationService.notifyOrderCreated(createdOrder).catch(console.error);
       invoiceService.generateInvoice(createdOrder).catch(console.error);
       inventoryService.syncOrder(orderId).catch(console.error);
+      cliqService.sendOrderAlert(`New Order placed from cart: #${createdOrder.order_number} - Total: ${createdOrder.total_amount} VND`).catch(console.error);
       
       for (const item of orderItems) {
         inventoryService.syncStock(item.foodId, item.quantity).catch(console.error);
       }
       for (const food of foodsToNotify) {
         notificationService.notifyInventoryWarning(food).catch(console.error);
+        cliqService.sendInventoryWarning(`Food "${food.name}" is low on stock (${food.quantity} left)`).catch(console.error);
       }
 
       const orderItemsData = await OrderItem.findByOrderId(orderId);
@@ -402,6 +407,11 @@ const orderService = {
 
     // Notify of status change
     notificationService.notifyOrderStatusChanged(updatedOrder, status, oldStatus).catch(console.error);
+
+    // Send Zoho Cliq Alerts
+    if (status === 'completed' || status === 'cancelled') {
+      cliqService.sendOrderAlert(`Order #${updatedOrder.order_number} status updated to: *${status.toUpperCase()}*`).catch(console.error);
+    }
 
     return updatedOrder;
   },
