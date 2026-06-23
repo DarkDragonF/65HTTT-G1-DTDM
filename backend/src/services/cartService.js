@@ -1,193 +1,106 @@
-const Cart = require('../models/Cart');
-const CartItem = require('../models/CartItem');
-const Food = require('../models/Food');
-const Canteen = require('../models/Canteen');
-const { AppError } = require('../middlewares/errorHandler');
+const db = require('../config/db');
 
-/**
- * Cart service providing business logic for student/lecturer shopping carts.
- */
-const cartService = {
-  /**
-   * Adds food to a cart, creating the cart first if necessary.
-   */
-  addToCart: async (userId, { foodId, quantity }) => {
-    // 1. Verify food exists
-    const food = await Food.findById(foodId);
-    if (!food) throw new AppError('Food item not found', 404);
-    
-    // Verify food is available
-    if (food.status !== 'available') {
-      throw new AppError(`Food item "${food.name}" is currently unavailable`, 400);
-    }
-
-    // Verify canteen exists and is active
-    const canteen = await Canteen.findById(food.canteen_id);
-    if (!canteen) throw new AppError('Canteen not found', 404);
-    if (canteen.status !== 'active') {
-      throw new AppError('This canteen is not currently active', 400);
-    }
-
-    // 2. Verify stock
-    if (food.quantity < quantity) {
-      throw new AppError(`Insufficient stock. Only ${food.quantity} left for "${food.name}".`, 400);
-    }
-
-    // 3. Find or create cart
-    const cart = await Cart.findOrCreate(userId, food.canteen_id);
-
-    // 4. Add/update item (verify cumulative quantity doesn't exceed stock)
-    const existingItems = await CartItem.findByCartId(cart.id);
-    const existingItem = existingItems.find(item => item.food_id === foodId);
-    
-    const targetQuantity = existingItem ? existingItem.quantity + quantity : quantity;
-    if (food.quantity < targetQuantity) {
-      throw new AppError(`Cannot add more. Combined quantity in cart (${targetQuantity}) exceeds available stock (${food.quantity}).`, 400);
-    }
-
-    await CartItem.addItem(cart.id, foodId, quantity);
-
-    // 5. Return updated cart
-    return await cartService.getCart(userId, food.canteen_id);
-  },
-
-  /**
-   * Gets details of a cart for a specific canteen, calculating subtotals.
-   */
-  getCart: async (userId, canteenId) => {
-    const cart = await Cart.findByUserAndCanteen(userId, canteenId);
-    if (!cart) {
-      return {
-        cartId: null,
-        canteenId,
-        canteenName: null,
-        items: [],
-        subtotal: 0,
-        totalQuantity: 0,
-      };
-    }
-
-    const cartInfo = await Cart.findById(cart.id);
-    const items = await CartItem.findByCartId(cart.id);
-
-    let subtotal = 0;
-    let totalQuantity = 0;
-    
-    const formattedItems = items.map(item => {
-      const itemSubtotal = item.food_price * item.quantity;
-      subtotal += itemSubtotal;
-      totalQuantity += item.quantity;
-
-      return {
-        id: item.id,
-        foodId: item.food_id,
-        name: item.food_name,
-        price: item.food_price,
-        imageUrl: item.food_image_url,
-        quantity: item.quantity,
-        status: item.food_status,
-        stock: item.food_stock,
-        subtotal: itemSubtotal,
-      };
-    });
-
-    return {
-      cartId: cart.id,
-      canteenId: cart.canteen_id,
-      canteenName: cartInfo.canteen_name,
-      canteenLogoUrl: cartInfo.canteen_logo_url,
-      items: formattedItems,
-      subtotal,
-      totalQuantity,
-    };
-  },
-
-  /**
-   * Gets summary of all active carts for a user.
-   */
-  getMyCarts: async (userId) => {
-    const carts = await Cart.findByUserId(userId);
-    const results = [];
-
-    for (const cart of carts) {
-      const items = await CartItem.findByCartId(cart.id);
-      let subtotal = 0;
-      let totalQuantity = 0;
-
-      items.forEach(item => {
-        subtotal += item.food_price * item.quantity;
-        totalQuantity += item.quantity;
-      });
-
-      results.push({
-        cartId: cart.id,
-        canteenId: cart.canteen_id,
-        canteenName: cart.canteen_name,
-        canteenLogoUrl: cart.canteen_logo_url,
-        totalItems: items.length,
-        totalQuantity,
-        subtotal,
-      });
-    }
-
-    return results;
-  },
-
-  /**
-   * Updates cart item quantity.
-   */
-  updateCartItem: async (userId, cartItemId, quantity) => {
-    const cartItem = await CartItem.findById(cartItemId);
-    if (!cartItem) throw new AppError('Cart item not found', 404);
-    if (cartItem.user_id !== userId) throw new AppError('Access denied. You do not own this cart item.', 403);
-
-    // Verify stock
-    const food = await Food.findById(cartItem.food_id);
-    if (!food) throw new AppError('Food item not found', 404);
-    if (food.status !== 'available') throw new AppError('Food item is currently unavailable', 400);
-    
-    if (food.quantity < quantity) {
-      throw new AppError(`Insufficient stock. Only ${food.quantity} left for "${food.name}".`, 400);
-    }
-
-    await CartItem.updateQuantity(cartItemId, quantity);
-
-    const cart = await Cart.findById(cartItem.cart_id);
-    return await cartService.getCart(userId, cart.canteen_id);
-  },
-
-  /**
-   * Removes a specific item from a cart. Deletes the cart if it becomes empty.
-   */
-  removeCartItem: async (userId, cartItemId) => {
-    const cartItem = await CartItem.findById(cartItemId);
-    if (!cartItem) throw new AppError('Cart item not found', 404);
-    if (cartItem.user_id !== userId) throw new AppError('Access denied. You do not own this cart item.', 403);
-
-    const cartId = cartItem.cart_id;
-    await CartItem.removeItem(cartItemId);
-
-    const count = await CartItem.countItems(cartId);
-    const cart = await Cart.findById(cartId);
-    
-    if (count === 0) {
-      await Cart.delete(cartId);
-      return { cartId: null, canteenId: cart.canteen_id, items: [], subtotal: 0, totalQuantity: 0 };
-    }
-
-    return await cartService.getCart(userId, cart.canteen_id);
-  },
-
-  /**
-   * Clears a cart entirely.
-   */
-  clearCart: async (userId, canteenId) => {
-    const cart = await Cart.findByUserAndCanteen(userId, canteenId);
-    if (!cart) throw new AppError('Cart not found', 404);
-
-    await Cart.delete(cart.id);
-    return { cartId: null, canteenId, items: [], subtotal: 0, totalQuantity: 0 };
-  },
+const createHttpError = (message, statusCode = 500) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
 };
 
-module.exports = cartService;
+const getOrCreateCart = async (userId) => {
+  const [existingCarts] = await db.query(
+    'SELECT id, user_id FROM cart WHERE user_id = ? LIMIT 1',
+    [userId],
+  );
+
+  if (existingCarts.length > 0) {
+    return existingCarts[0];
+  }
+
+  const [result] = await db.query(
+    'INSERT INTO cart (user_id) VALUES (?)',
+    [userId],
+  );
+
+  return {
+    id: result.insertId,
+    user_id: userId,
+  };
+};
+
+const getCart = async (userId) => {
+  const cart = await getOrCreateCart(userId);
+
+  const [items] = await db.query(
+    `
+      SELECT
+        ci.id AS cart_item_id,
+        ci.food_id,
+        ci.quantity,
+        f.price AS unit_price,
+        f.quantity AS available_quantity,
+        (ci.quantity * f.price) AS subtotal
+      FROM cart_items ci
+      INNER JOIN foods f ON f.id = ci.food_id
+      WHERE ci.cart_id = ?
+      ORDER BY ci.id ASC
+    `,
+    [cart.id],
+  );
+
+  const totalAmount = items.reduce(
+    (total, item) => total + Number(item.subtotal || 0),
+    0,
+  );
+
+  return {
+    cart_id: cart.id,
+    user_id: userId,
+    items,
+    total_amount: totalAmount,
+  };
+};
+
+const addToCart = async ({ userId, foodId, quantity }) => {
+  const [foods] = await db.query(
+    'SELECT id, price, quantity FROM foods WHERE id = ? LIMIT 1',
+    [foodId],
+  );
+
+  if (foods.length === 0) {
+    throw createHttpError('Food item not found', 404);
+  }
+
+  const food = foods[0];
+  const cart = await getOrCreateCart(userId);
+
+  const [existingItems] = await db.query(
+    'SELECT id, quantity FROM cart_items WHERE cart_id = ? AND food_id = ? LIMIT 1',
+    [cart.id, foodId],
+  );
+
+  const currentQuantity = existingItems[0]?.quantity || 0;
+  const nextQuantity = currentQuantity + quantity;
+
+  if (nextQuantity > food.quantity) {
+    throw createHttpError('Requested quantity exceeds available stock', 400);
+  }
+
+  if (existingItems.length > 0) {
+    await db.query(
+      'UPDATE cart_items SET quantity = ? WHERE id = ?',
+      [nextQuantity, existingItems[0].id],
+    );
+  } else {
+    await db.query(
+      'INSERT INTO cart_items (cart_id, food_id, quantity) VALUES (?, ?, ?)',
+      [cart.id, foodId, quantity],
+    );
+  }
+
+  return getCart(userId);
+};
+
+module.exports = {
+  getCart,
+  addToCart,
+};
