@@ -20,12 +20,23 @@ const app = express();
 
 
 // ─── CORS Configuration ────────────────────────────────────────────────────────
+const corsOrigin = process.env.CORS_ORIGIN;
+const allowedOrigins = corsOrigin ? corsOrigin.split(',') : ['http://localhost:5173'];
+
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+        return callback(null, true);
+      }
+      return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+    },
     credentials: true,
   })
 );
+
 
 // ─── Body Parsers ───────────────────────────────────────────────────────────────
 app.use(express.json());
