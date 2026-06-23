@@ -94,6 +94,12 @@ const HomePage = () => {
             <p>Manage your account settings and profile information</p>
             <span className="feature-badge active-badge">Go &rarr;</span>
           </Link>
+          <Link to="/feedback" className="feature-card">
+            <span className="feature-icon">📝</span>
+            <h3>Customer Feedback</h3>
+            <p>Share your dining experience with us</p>
+            <span className="feature-badge active-badge">Go &rarr;</span>
+          </Link>
         </section>
 
         {/* Footer */}
