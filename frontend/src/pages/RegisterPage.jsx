@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import AuthLayout from '../layouts/AuthLayout';
@@ -77,9 +77,53 @@ const RegisterPage = () => {
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const isCaptchaConfigured = siteKey && siteKey !== 'placeholder' && siteKey.trim() !== '';
+
+  useEffect(() => {
+    if (!isCaptchaConfigured) return;
+
+    const loadRecaptcha = () => {
+      if (window.grecaptcha && document.getElementById('recaptcha-container')) {
+        try {
+          window.grecaptcha.render('recaptcha-container', {
+            sitekey: siteKey,
+            callback: (token) => {
+              setRecaptchaToken(token);
+              setErrors((prev) => ({ ...prev, recaptcha: '' }));
+            },
+            'expired-callback': () => {
+              setRecaptchaToken('');
+            }
+          });
+        } catch (err) {
+          console.error('[reCAPTCHA] Render error:', err);
+        }
+      }
+    };
+
+    if (window.grecaptcha) {
+      loadRecaptcha();
+    } else {
+      window.onloadRecaptchaCallback = () => {
+        loadRecaptcha();
+      };
+      const script = document.createElement('script');
+      script.src = 'https://www.google.com/recaptcha/api.js?onload=onloadRecaptchaCallback&render=explicit';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+
+    return () => {
+      window.onloadRecaptchaCallback = undefined;
+    };
+  }, [isCaptchaConfigured, siteKey]);
 
   const passwordStrength = useMemo(
     () => getPasswordStrength(formData.password),
@@ -116,6 +160,12 @@ const RegisterPage = () => {
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
+
+    // Validate reCAPTCHA
+    if (isCaptchaConfigured && !recaptchaToken) {
+      newErrors.recaptcha = 'Please verify that you are not a robot';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -128,7 +178,7 @@ const RegisterPage = () => {
     setError('');
     try {
       const { fullName, email, password, phone, role } = formData;
-      await register({ fullName, email, password, phone, role });
+      await register({ fullName, email, password, phone, role, recaptchaToken });
       navigate('/verify-otp', { state: { email: formData.email } });
     } catch (err) {
       const message =
@@ -269,6 +319,14 @@ const RegisterPage = () => {
             ))}
           </div>
         </div>
+
+        {/* Google reCAPTCHA Widget */}
+        {isCaptchaConfigured && (
+          <div className="recaptcha-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '16px 0', gap: '8px' }}>
+            <div id="recaptcha-container"></div>
+            {errors.recaptcha && <span className="recaptcha-error" style={{ color: '#ef4444', fontSize: '0.8rem' }}>{errors.recaptcha}</span>}
+          </div>
+        )}
 
         <Button type="submit" fullWidth isLoading={isLoading}>
           Create Account

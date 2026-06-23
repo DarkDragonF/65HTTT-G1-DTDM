@@ -13,9 +13,11 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminUserRoutes = require('./routes/adminUserRoutes');
 const adminCanteenRoutes = require('./routes/adminCanteenRoutes');
 const supportRoutes = require('./routes/supportRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 const { errorHandler, AppError } = require('./middlewares/errorHandler');
 
 const app = express();
+
 
 // ─── CORS Configuration ────────────────────────────────────────────────────────
 app.use(
@@ -53,6 +55,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminUserRoutes);
 app.use('/api/admin', adminCanteenRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/feedback', feedbackRoutes);
+
 
 // ─── Serve Uploaded Files ───────────────────────────────────────────────────────
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

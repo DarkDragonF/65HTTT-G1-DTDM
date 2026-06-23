@@ -34,9 +34,49 @@ const authService = {
    * @param {string} [params.role]
    * @returns {Promise<Object>} Created user (without password)
    */
-  register: async ({ fullName, email, password, phone, role }) => {
+  register: async ({ fullName, email, password, phone, role, recaptchaToken }) => {
+    // 0. Verify Google reCAPTCHA v2 token if configured
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    if (recaptchaSecret && recaptchaSecret !== 'placeholder' && recaptchaSecret.trim() !== '') {
+      if (!recaptchaToken) {
+        throw new AppError('reCAPTCHA verification is required', 400);
+      }
+      
+      console.log('[reCAPTCHA] Verifying token with Google APIs...');
+      try {
+        const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            secret: recaptchaSecret,
+            response: recaptchaToken
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Google responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.success) {
+          console.warn('[reCAPTCHA] Verification failed:', JSON.stringify(data));
+          throw new AppError('reCAPTCHA validation failed. Please try again.', 400);
+        }
+        console.log('[reCAPTCHA] Token verified successfully.');
+      } catch (err) {
+        console.error('[reCAPTCHA] Verification error:', err.message);
+        if (err instanceof AppError) throw err;
+        throw new AppError('Google reCAPTCHA service is currently unreachable.', 503);
+      }
+    } else {
+      console.log('[reCAPTCHA] Secret key not configured or set to placeholder. Bypassing validation.');
+    }
+
     // 1. Check if email already exists
     const existingUser = await User.findByEmail(email);
+
     if (existingUser) {
       throw new AppError('Email is already registered', 409);
     }
@@ -92,15 +132,8 @@ const authService = {
     // 4. Update user verification status
     await User.updateVerificationStatus(user.id, true);
 
-    // 5. Subscribe user to Zoho Campaigns newsletter list
-    try {
-      const campaignsService = require('./campaignsService');
-      await campaignsService.subscribeUserToNewsletter(user.email, user.full_name);
-    } catch (err) {
-      console.error('[authService] Failed to auto-subscribe user to Campaigns:', err.message);
-    }
-
     return { message: 'Email verified successfully' };
+
   },
 
   /**

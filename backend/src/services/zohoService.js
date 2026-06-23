@@ -1,19 +1,29 @@
 const zohoVaultService = require('./zohoVaultService');
 
-let cachedToken = null;
-let tokenExpiry = 0; // Epoch ms
+const tokenCache = {}; // { [serviceKey]: { token, expiry } }
+
+const serviceTokenKeys = {
+  vault: 'ZOHO_VAULT_REFRESH_TOKEN',
+  crm: 'ZOHO_CRM_REFRESH_TOKEN',
+  inventory: 'ZOHO_INVENTORY_REFRESH_TOKEN',
+  invoice: 'ZOHO_INVOICE_REFRESH_TOKEN'
+};
 
 const zohoService = {
-  getAccessToken: async () => {
+  getAccessToken: async (serviceKey = 'crm') => {
     const now = Date.now();
+    const cache = tokenCache[serviceKey];
+    
     // Buffer of 60 seconds
-    if (cachedToken && now < tokenExpiry - 60000) {
-      return cachedToken;
+    if (cache && now < cache.expiry - 60000) {
+      return cache.token;
     }
 
     const clientId = await getCredential('ZOHO_CLIENT_ID') || await getCredential('ZOHO_CRM_CLIENT_ID');
     const clientSecret = await getCredential('ZOHO_CLIENT_SECRET') || await getCredential('ZOHO_CRM_CLIENT_SECRET');
-    const refreshToken = await getCredential('ZOHO_REFRESH_TOKEN');
+    
+    const specificEnvKey = serviceTokenKeys[serviceKey];
+    const refreshToken = (specificEnvKey ? await getCredential(specificEnvKey) : null) || await getCredential('ZOHO_REFRESH_TOKEN');
     const accountsUrl = process.env.ZOHO_ACCOUNTS_URL || 'https://accounts.zoho.com';
 
     // If client ID / client secret is placeholder/missing or no refresh token, return null (mock mode).
@@ -51,10 +61,12 @@ const zohoService = {
         throw new Error(`Token response missing access_token: ${JSON.stringify(data)}`);
       }
 
-      cachedToken = data.access_token;
-      tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
-      console.log('[Zoho Service] Access token refreshed successfully.');
-      return cachedToken;
+      tokenCache[serviceKey] = {
+        token: data.access_token,
+        expiry: Date.now() + (data.expires_in || 3600) * 1000
+      };
+      console.log(`[Zoho Service] Access token refreshed successfully for: ${serviceKey}`);
+      return data.access_token;
     } catch (error) {
       console.error('[Zoho Service] Error refreshing Zoho OAuth token:', error.message);
       // Fallback: return null so caller degrades gracefully to mock mode

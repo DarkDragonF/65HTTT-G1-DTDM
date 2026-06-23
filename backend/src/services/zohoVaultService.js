@@ -35,7 +35,7 @@ const zohoVaultService = {
     try {
       // Lazy load to prevent circular require issues at boot
       const zohoService = require('./zohoService');
-      const accessToken = await zohoService.getAccessToken();
+      const accessToken = await zohoService.getAccessToken('vault');
       if (!accessToken) {
         throw new Error('OAuth accessToken is unavailable.');
       }

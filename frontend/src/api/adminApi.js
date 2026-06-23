@@ -59,3 +59,8 @@ export const triggerRevenueSnapshot = (date) => {
 export const syncInventoryCatalog = () => {
   return axiosInstance.post('/admin/inventory/sync');
 };
+
+export const getFeedbackList = () => {
+  return axiosInstance.get('/feedback');
+};
+

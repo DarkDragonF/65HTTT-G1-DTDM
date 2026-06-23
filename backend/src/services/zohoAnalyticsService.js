@@ -16,7 +16,7 @@ const zohoAnalyticsService = {
   syncRevenueData: async (date, totalOrders, totalRevenue) => {
     console.log(`[Zoho Analytics] Attempting to sync daily snapshot data for date: ${date}...`);
     
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('analytics');
     const workspaceId = await getCredential('ZOHO_ANALYTICS_WORKSPACE_ID');
     const tableName = await getCredential('ZOHO_ANALYTICS_TABLE_NAME') || 'Revenue_Snapshots';
 

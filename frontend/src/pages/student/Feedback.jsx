@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNotification } from '../../hooks/useNotification';
+import { submitFeedback } from '../../api/feedbackApi';
 import './Feedback.css';
 
 const Feedback = () => {
@@ -12,18 +13,22 @@ const Feedback = () => {
   const formsUrl = import.meta.env.VITE_ZOHO_FORMS_URL;
   const isMockMode = !formsUrl || formsUrl === 'placeholder' || (!formsUrl.includes('forms.zoho') && !formsUrl.includes('zohopublic'));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate database write
-    setTimeout(() => {
-      showToast('Thank you! Your feedback has been synced to Zoho Forms.', 'success');
+    try {
+      await submitFeedback({ canteenName, rating, comments });
+      showToast('Thank you! Your feedback has been submitted successfully.', 'success');
       setComments('');
       setRating(5);
+    } catch (error) {
+      showToast(error.response?.data?.message || 'Failed to submit feedback', 'error');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
+
 
   return (
     <div className="student-feedback animate-fade-in">

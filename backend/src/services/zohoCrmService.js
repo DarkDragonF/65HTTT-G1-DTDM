@@ -15,7 +15,7 @@ async function getCredential(key) {
 const zohoCrmService = {
   syncPartnerRecord: async (canteenId, canteenName, ownerEmail) => {
     console.log(`[Zoho CRM] Attempting to sync partner record for Canteen ID: ${canteenId}...`);
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('crm');
 
     const mockPartnerId = `PARTNER_CRM_${canteenId}_${Date.now().toString().slice(-4)}`;
 
@@ -71,7 +71,7 @@ const zohoCrmService = {
     const contractNum = `TLU-CONT-${canteenId}-${Date.now().toString().slice(-4)}`;
     console.log(`[Zoho Sign] Attempting to trigger contract signing for Canteen: ${canteenName}...`);
 
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('crm');
     const templateId = await getCredential('ZOHO_SIGN_TEMPLATE_ID');
 
     const mockDetails = {

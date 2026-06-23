@@ -16,7 +16,7 @@ const zohoDeskService = {
   syncTicketToZohoDesk: async (ticketId, subject, description, userEmail) => {
     console.log(`[Zoho Desk] Attempting to sync support ticket ID: ${ticketId} to Zoho Desk...`);
     
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('desk');
     const orgId = await getCredential('ZOHO_DESK_ORG_ID');
     const departmentId = await getCredential('ZOHO_DESK_DEPARTMENT_ID') || 'placeholder_dept_123';
 

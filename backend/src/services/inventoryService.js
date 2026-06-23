@@ -17,7 +17,7 @@ const inventoryService = {
   syncStock: async (foodId, quantity) => {
     console.log(`[Zoho Inventory] Attempting to sync stock for Food ID: ${foodId} to: ${quantity}...`);
     
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('inventory');
     const orgId = await getCredential('ZOHO_FINANCE_ORG_ID');
     
     // Look up zoho_item_id from the database
@@ -83,7 +83,7 @@ const inventoryService = {
   syncOrder: async (orderId) => {
     console.log(`[Zoho Inventory] Attempting to sync Order ID: ${orderId}...`);
     
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('inventory');
     const orgId = await getCredential('ZOHO_FINANCE_ORG_ID');
     const customerId = await getCredential('ZOHO_INVENTORY_CUSTOMER_ID') || 'placeholder_customer_123';
 
@@ -143,7 +143,7 @@ const inventoryService = {
       'SELECT id, name, price, quantity, description, zoho_item_id FROM foods WHERE status != "deleted"'
     );
 
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('inventory');
     const orgId = await getCredential('ZOHO_FINANCE_ORG_ID');
 
     let created = 0;

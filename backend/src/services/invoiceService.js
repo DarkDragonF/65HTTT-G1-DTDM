@@ -17,7 +17,7 @@ const invoiceService = {
     const invoiceNumber = `INV-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
     console.log(`[Zoho Invoice] Attempting to generate invoice for Order Number: ${order.order_number}...`);
     
-    const accessToken = await zohoService.getAccessToken();
+    const accessToken = await zohoService.getAccessToken('invoice');
     const orgId = await getCredential('ZOHO_FINANCE_ORG_ID');
     const customerId = await getCredential('ZOHO_INVOICE_CUSTOMER_ID') || 'placeholder_customer_123';
 
@@ -44,7 +44,6 @@ const invoiceService = {
         },
         body: JSON.stringify({
           customer_id: customerId,
-          invoice_number: invoiceNumber,
           date: new Date().toISOString().split('T')[0],
           line_items: [
             {
