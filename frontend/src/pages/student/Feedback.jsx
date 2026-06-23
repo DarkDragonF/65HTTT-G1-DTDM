@@ -10,8 +10,8 @@ const Feedback = () => {
   const [canteenName, setCanteenName] = useState('All Canteens');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const formsUrl = import.meta.env.VITE_ZOHO_FORMS_URL;
-  const isMockMode = !formsUrl || formsUrl === 'placeholder' || (!formsUrl.includes('forms.zoho') && !formsUrl.includes('zohopublic'));
+  const formsUrl = 'https://forms.zohopublic.com/bbruh1/form/DeliveryFeedback/formperma/xL9ewWkVWWRl6w1qC41gg_HmhdP_S3rNTn_VaeNg8mg';
+  const isMockMode = false;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
