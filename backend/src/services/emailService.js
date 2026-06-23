@@ -18,8 +18,8 @@ let transporter = null;
 const getTransporter = async () => {
   if (transporter) return transporter;
 
-  const user = await getCredential('dragon474@zohomail.com');
-  const pass = await getCredential('RwatDJwim1ha');
+  const user = await getCredential('ZOHO_MAIL_USER');
+  const pass = await getCredential('ZOHO_MAIL_PASSWORD');
   const host = process.env.ZOHO_MAIL_HOST || 'smtp.zoho.com';
   const port = Number(process.env.ZOHO_MAIL_PORT) || 465;
 
@@ -47,6 +47,12 @@ const emailService = {
    */
   sendVerificationOtp: async (email, fullName, otp) => {
     const user = await getCredential('ZOHO_MAIL_USER');
+    const pass = await getCredential('ZOHO_MAIL_PASSWORD');
+    
+    console.log('[DEBUG emailService] env keys starting with ZOHO_MAIL:', Object.keys(process.env).filter(k => k.startsWith('ZOHO_MAIL')));
+    console.log('[DEBUG emailService] user exists =', !!user, 'length =', user ? user.length : 0);
+    console.log('[DEBUG emailService] pass exists =', !!pass, 'length =', pass ? pass.length : 0);
+
     const mailTransporter = await getTransporter();
 
     // Fallback if not configured
