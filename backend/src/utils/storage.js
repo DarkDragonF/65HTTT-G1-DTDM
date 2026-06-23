@@ -18,49 +18,59 @@ const ensureUploadDirs = () => {
 };
 
 /**
- * Gets the public URL for a locally stored file.
+ * Gets the public URL for a uploaded file.
+ * Supports GCS absolute path and local relative path.
  * @param {object} file - Multer file object
  * @param {string} folder - The upload subfolder (e.g., 'logos', 'foods')
  * @returns {string} Public URL path
  */
 const getFileUrl = (file, folder) => {
+  if (file.path) {
+    return file.path; // Returns the public GCS URL directly
+  }
   return `/uploads/${folder}/${file.filename}`;
 };
 
 /**
- * Deletes a file from local storage.
- * @param {string} fileUrl - The URL path (e.g., '/uploads/foods/image.jpg')
+ * Deletes a file (handles GCS deletion or local storage deletion).
+ * @param {string} fileUrl - The URL path (e.g., '/uploads/foods/image.jpg' or GCS URL)
  */
-const deleteFile = (fileUrl) => {
+const deleteFile = async (fileUrl) => {
   if (!fileUrl) return;
+
+  // Check if it is a Google Cloud Storage URL
+  if (fileUrl.startsWith('https://storage.googleapis.com/')) {
+    const bucketName = process.env.GCS_BUCKET;
+    if (!bucketName || bucketName === 'placeholder') {
+      console.warn('[Storage Util] Cannot delete GCS file: GCS_BUCKET is not configured.');
+      return;
+    }
+    try {
+      const { Storage } = require('@google-cloud/storage');
+      const gcs = new Storage();
+      
+      // Extract the object name from the GCS URL:
+      // URL format: https://storage.googleapis.com/bucket-name/folder/filename
+      const objectPath = fileUrl.replace(`https://storage.googleapis.com/${bucketName}/`, '');
+      console.log(`[Storage Util] Deleting GCS file: ${objectPath} from bucket: ${bucketName}...`);
+      
+      await gcs.bucket(bucketName).file(objectPath).delete();
+      console.log(`✅ [Storage Util] Successfully deleted GCS file: ${objectPath}`);
+    } catch (error) {
+      console.error('[Storage Util] Failed to delete GCS file:', error.message);
+    }
+    return;
+  }
+
+  // Fallback to local file deletion
   try {
     const filePath = path.join(UPLOADS_DIR, '..', fileUrl);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
   } catch (error) {
-    console.error('Failed to delete file:', error.message);
+    console.error('Failed to delete local file:', error.message);
   }
 };
-
-// TODO: Google Cloud Storage integration
-// const { Storage } = require('@google-cloud/storage');
-// const gcs = new Storage({ keyFilename: process.env.GCS_KEY_FILE });
-// const bucket = gcs.bucket(process.env.GCS_BUCKET);
-//
-// const uploadToGCS = async (file, folder) => {
-//   const blob = bucket.file(`${folder}/${file.filename}`);
-//   const stream = blob.createWriteStream({
-//     metadata: { contentType: file.mimetype },
-//   });
-//   return new Promise((resolve, reject) => {
-//     stream.on('error', reject);
-//     stream.on('finish', () => {
-//       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-//       resolve(publicUrl);
-//     });
-//     stream.end(file.buffer);
-//   });
-// };
 
 module.exports = { ensureUploadDirs, getFileUrl, deleteFile };

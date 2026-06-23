@@ -5,7 +5,9 @@ import { getFoodsByCanteen } from '../../api/foodApi';
 import { useCart } from '../../hooks/useCart';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
+import { getImageUrl } from '../../utils/helpers';
 import './Home.css';
+
 
 /**
  * Student Home Page. Displays active canteens and details their menus,
@@ -133,7 +135,7 @@ const Home = () => {
                 <div key={c.id} className="canteen-card" onClick={() => handleSelectCanteen(c)}>
                   <div className="canteen-card-image">
                     {c.logo_url ? (
-                      <img src={`http://localhost:5000${c.logo_url}`} alt={c.name} />
+                      <img src={getImageUrl(c.logo_url)} alt={c.name} />
                     ) : (
                       <span className="canteen-logo-placeholder">🏪</span>
                     )}
@@ -205,7 +207,7 @@ const Home = () => {
                 <div key={food.id} className="food-item-card">
                   <div className="food-item-image">
                     {food.image_url ? (
-                      <img src={`http://localhost:5000${food.image_url}`} alt={food.name} />
+                      <img src={getImageUrl(food.image_url)} alt={food.name} />
                     ) : (
                       <span className="food-image-placeholder">🍔</span>
                     )}

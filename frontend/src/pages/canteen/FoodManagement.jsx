@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { getFoodsByCanteen, getCategories, createFood, updateFood, toggleAvailability, uploadFoodImage, deleteFood } from '../../api/foodApi';
 import { useNotification } from '../../hooks/useNotification';
+import { getImageUrl } from '../../utils/helpers';
 import './FoodManagement.css';
+
 
 const FoodManagement = () => {
   const { showToast, confirm } = useNotification();
@@ -238,7 +240,7 @@ const FoodManagement = () => {
             <div key={food.id} className={`food-card ${food.status === 'unavailable' ? 'food-unavailable' : ''}`}>
               <div className="food-card-image-box">
                 {food.image_url ? (
-                  <img src={`http://localhost:5000${food.image_url}`} alt={food.name} className="food-card-img" />
+                  <img src={getImageUrl(food.image_url)} alt={food.name} className="food-card-img" />
                 ) : (
                   <div className="food-card-img-placeholder">🍲</div>
                 )}

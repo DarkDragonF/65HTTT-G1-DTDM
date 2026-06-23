@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { placeOrderFromCart } from '../../api/orderApi';
 import { useNotification } from '../../hooks/useNotification';
+import { getImageUrl } from '../../utils/helpers';
 import './Cart.css';
+
 
 /**
  * Cart Page. Lists cart items per canteen, computes totals on backend,
@@ -166,7 +168,7 @@ const Cart = () => {
                         <div className="cart-item-info">
                           <div className="cart-item-img">
                             {item.imageUrl ? (
-                              <img src={`http://localhost:5000${item.imageUrl}`} alt={item.name} />
+                              <img src={getImageUrl(item.imageUrl)} alt={item.name} />
                             ) : (
                               <span>🍔</span>
                             )}

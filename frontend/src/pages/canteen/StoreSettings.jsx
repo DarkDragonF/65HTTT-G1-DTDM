@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { updateCanteen, uploadLogo } from '../../api/canteenApi';
+import { getImageUrl } from '../../utils/helpers';
 import './StoreSettings.css';
+
 
 const StoreSettings = () => {
   const { canteen, fetchCanteen } = useOutletContext();
@@ -163,7 +165,7 @@ const StoreSettings = () => {
           <div className="logo-upload-section">
             <div className="logo-preview-box">
               {canteen?.logo_url ? (
-                <img src={`http://localhost:5000${canteen.logo_url}`} alt="Logo" className="preview-logo-img" />
+                <img src={getImageUrl(canteen.logo_url)} alt="Logo" className="preview-logo-img" />
               ) : (
                 <div className="preview-logo-placeholder">🏢</div>
               )}

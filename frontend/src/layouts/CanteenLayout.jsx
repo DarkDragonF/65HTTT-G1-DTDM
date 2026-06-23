@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getMyCanteens, createCanteen } from '../api/canteenApi';
+import { getImageUrl } from '../utils/helpers';
 import './CanteenLayout.css';
+
 
 const CanteenLayout = () => {
   const { user, logout } = useAuth();
@@ -187,7 +189,7 @@ const CanteenLayout = () => {
         <div className="canteen-owner-profile">
           <div className="canteen-logo-container">
             {canteen?.logo_url ? (
-              <img src={`http://localhost:5000${canteen.logo_url}`} alt="Logo" className="canteen-sidebar-logo" />
+              <img src={getImageUrl(canteen.logo_url)} alt="Logo" className="canteen-sidebar-logo" />
             ) : (
               <div className="canteen-logo-placeholder">🏢</div>
             )}
