@@ -1,0 +1,494 @@
+.canteen-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+/* ─── Sidebar ────────────────────────────────────────── */
+.canteen-sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  padding: 24px;
+}
+
+.canteen-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.sidebar-brand-emoji {
+  font-size: 1.8rem;
+}
+
+.canteen-sidebar-brand h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.portal-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Owner Profile inside Sidebar */
+.canteen-owner-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  margin-bottom: 24px;
+}
+
+.canteen-logo-container {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+
+.canteen-sidebar-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canteen-logo-placeholder {
+  font-size: 1.2rem;
+}
+
+.canteen-owner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.canteen-name-sidebar {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.canteen-status-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: inline-block;
+  align-self: flex-start;
+  letter-spacing: 0.5px;
+}
+
+.canteen-status-active {
+  color: var(--success);
+}
+
+.canteen-status-inactive {
+  color: var(--text-muted);
+}
+
+.canteen-status-pending {
+  color: var(--secondary);
+}
+
+/* Sidebar Navigation Items */
+.canteen-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  border-radius: var(--radius-input);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nav-item-icon {
+  font-size: 1.1rem;
+}
+
+/* Sidebar Footer */
+.canteen-sidebar-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.sidebar-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  border-radius: var(--radius-input);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.sidebar-logout-btn:hover {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* ─── Main Content Frame ──────────────────────────────── */
+.canteen-main-content {
+  margin-left: 260px;
+  flex-grow: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.canteen-content-header {
+  height: 70px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.header-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.breadcrumb-root {
+  color: var(--text-muted);
+}
+
+.breadcrumb-separator {
+  color: var(--border);
+}
+
+.breadcrumb-current {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.header-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+
+.user-name-text {
+  color: var(--text-primary);
+  font-weight: 550;
+}
+
+.canteen-content-body {
+  padding: 40px;
+  flex-grow: 1;
+  background: linear-gradient(180deg, var(--bg) 0%, rgba(15, 20, 25, 0.8) 100%);
+}
+
+/* ─── Registration Page (No Canteen State) ──────────────── */
+.canteen-reg-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+  background: var(--bg);
+}
+
+.canteen-reg-card {
+  max-width: 520px;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 40px;
+  box-shadow: var(--shadow);
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.canteen-reg-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.canteen-reg-logo-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.2));
+}
+
+.canteen-reg-header h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.canteen-reg-header p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.canteen-reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.canteen-reg-error {
+  background: var(--error-bg);
+  border: 1px solid var(--error);
+  color: var(--error);
+  padding: 12px;
+  border-radius: var(--radius-input);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.canteen-reg-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.canteen-reg-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.canteen-reg-form input,
+.canteen-reg-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-input);
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.canteen-reg-form input:focus,
+.canteen-reg-form textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.canteen-reg-buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.btn-primary-custom {
+  flex-grow: 1;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-input);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-primary-custom:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btn-primary-custom:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary-custom {
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-input);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-secondary-custom:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+/* ─── Loading Screen ─────────────────────────────────── */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 1000;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.spinner-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-ring-2 {
+  border-top-color: transparent;
+  border-bottom-color: var(--secondary);
+  animation-duration: 1.5s;
+}
+
+.loading-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+/* Responsive adjustment */
+@media (max-width: 992px) {
+  .canteen-sidebar {
+    width: 80px;
+    padding: 16px 8px;
+    align-items: center;
+  }
+  
+  .canteen-sidebar-brand h2,
+  .portal-badge,
+  .canteen-owner-info,
+  .sidebar-nav-item span:not(.nav-item-icon),
+  .sidebar-logout-btn span:not(.nav-item-icon) {
+    display: none;
+  }
+  
+  .canteen-sidebar-brand {
+    margin-bottom: 24px;
+  }
+  
+  .canteen-owner-profile {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    margin-bottom: 16px;
+  }
+  
+  .canteen-logo-container {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sidebar-nav-item {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .canteen-main-content {
+    margin-left: 80px;
+  }
+  
+  .canteen-content-header {
+    padding: 0 24px;
+  }
+  
+  .canteen-content-body {
+    padding: 24px;
+  }
+}
